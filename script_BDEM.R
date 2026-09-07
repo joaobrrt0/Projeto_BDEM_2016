@@ -149,6 +149,39 @@ tapply(dados_sim_2$IDADE %% 100, dados_sim_2$IDADE %/% 100, range)
 # Em variáveis quantitativas como IDADE verificar se existem valores como 9999 para NA
 
 
+# ---------------------------------------------------------------------------
+# TIPOBITO: 1-Fetal e 2-Não fetal; não possui categoria "ignorado"
+
+# SEXO: pelo dicionário, I, 0 e 9 são "ignorado"
+dados_sim_2$SEXO[dados_sim_2$SEXO %in% c(0, 9)] = NA
+
+# RACACOR: 9 é "ignorado"
+dados_sim_2$RACACOR[dados_sim_2$RACACOR %in% c(9)] = NA
+
+# ESC2010: 9 é "ignorado"
+dados_sim_2$ESC2010[dados_sim_2$ESC2010 %in% c(9)] = NA
+
+# TPMORTEOCO: 9 é "ignorado"
+dados_sim_2$TPMORTEOCO[dados_sim_2$TPMORTEOCO %in% c(9)] = NA
+
+# IDADE: a unidade de medida 9 corresponde a idade ignorada (valores 9xx, como 999)
+# o which() evita erro caso já existam NA em IDADE
+dados_sim_2$IDADE[which(dados_sim_2$IDADE %/% 100 == 9)] = NA
+
+# CAUSABAS: não tem código de "ignorado"; apenas os registros em branco viram NA
+dados_sim_2$CAUSABAS[dados_sim_2$CAUSABAS %in% ""] = NA
+
+# Conferindo o resultado da atribuição de NA
+table(dados_sim_2$SEXO, useNA = "ifany")
+table(dados_sim_2$RACACOR, useNA = "ifany")
+table(dados_sim_2$ESC2010, useNA = "ifany")
+table(dados_sim_2$TPMORTEOCO, useNA = "ifany")
+table(dados_sim_2$IDADE %/% 100, useNA = "ifany")
+
+# Total de NA em cada variável do banco
+colSums(is.na(dados_sim_2))
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 5 commit com a mensagem "script BDEM - SIM - tarefas 1 a 5" e envie para o repositório Projeto_BDEM_2016
 
 
