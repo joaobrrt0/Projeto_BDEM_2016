@@ -45,6 +45,18 @@ head(dados_sim)
 # Nomes das respectivas variáveis: CONTADOR, TIPOBITO, IDADE, SEXO, RACACOR, ESC2010, CODMUNRES, TPMORTEOCO, CAUSABAS
 
 
+# ---------------------------------------------------------------------------
+# Seleção das colunas 1, 3, 9, 10, 11, 14, 17, 35, 47
+dados_sim_1 = dados_sim[, c(1, 3, 9, 10, 11, 14, 17, 35, 47)]
+
+# Conferindo se as colunas selecionadas são as variáveis pedidas
+names(dados_sim_1)
+# "CONTADOR" "TIPOBITO" "IDADE" "SEXO" "RACACOR" "ESC2010" "CODMUNRES" "TPMORTEOCO" "CAUSABAS"
+
+dim(dados_sim_1)   # 1309774 linhas e 9 colunas
+str(dados_sim_1)
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 2 commit com a mensagem "script BDEM - SIM - tarefas 1 a 2" e envie para o repositório Projeto_BDEM_2016
 
 
