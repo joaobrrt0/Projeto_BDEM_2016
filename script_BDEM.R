@@ -17,6 +17,26 @@
 # Verificar se a leitura foi feita corretamente e a estrutura dos dados
 
 
+# ---------------------------------------------------------------------------
+# UF de trabalho: PERNAMBUCO (PE) - código 26
+# Definir a pasta de trabalho como sendo o repositório local Projeto_BDEM_2016
+# setwd("C:/Users/User/Desktop/Projeto_BDEM_2016")
+
+# Leitura do banco de dados: o arquivo tem separador ";" (por isso read.csv2)
+# A leitura demora alguns minutos porque o arquivo tem cerca de 440 MB
+dados_sim = read.csv2("SIM_2016.csv")
+
+# Verificando se a leitura foi feita corretamente
+dim(dados_sim)     # esperado: 1309774 linhas e 87 colunas
+nrow(dados_sim)    # 1309774
+ncol(dados_sim)    # 87
+
+# Verificando a estrutura dos dados
+str(dados_sim)
+names(dados_sim)
+head(dados_sim)
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 1 commit com a mensagem "script BDEM - SIM - tarefa 1" e envie para o repositório Projeto_BDEM_2016
 
 
