@@ -192,6 +192,44 @@ colSums(is.na(dados_sim_2))
 #          2. Nesta Tarefa 6 não crie novas variáveis dentro do banco de dados
 
 
+# ---------------------------------------------------------------------------
+dados_sim_2$TIPOBITO = factor(dados_sim_2$TIPOBITO,
+                              levels = c(1, 2),
+                              labels = c("Fetal", "Não fetal"))
+
+dados_sim_2$SEXO = factor(dados_sim_2$SEXO,
+                          levels = c(1, 2),
+                          labels = c("Masculino", "Feminino"))
+
+dados_sim_2$RACACOR = factor(dados_sim_2$RACACOR,
+                             levels = c(1, 2, 3, 4, 5),
+                             labels = c("Branca", "Preta", "Amarela", "Parda", "Indígena"))
+
+dados_sim_2$ESC2010 = factor(dados_sim_2$ESC2010,
+                             levels = c(0, 1, 2, 3, 4, 5),
+                             labels = c("Sem escolaridade", "Fundamental I", "Fundamental II",
+                                        "Médio", "Superior incompleto", "Superior completo"))
+
+dados_sim_2$TPMORTEOCO = factor(dados_sim_2$TPMORTEOCO,
+                                levels = c(1, 2, 3, 4, 5, 8),
+                                labels = c("Na gravidez", "No parto", "No abortamento",
+                                           "Até 42 dias após o término do parto",
+                                           "De 43 dias a 1 ano após o término da gestação",
+                                           "Não ocorreu nestes períodos"))
+
+# CAUSABAS não recebe legenda: ela já é o próprio código da CID-10 da causa básica
+# IDADE também não recebe legenda porque é uma variável quantitativa
+
+# Conferindo as legendas atribuídas
+table(dados_sim_2$TIPOBITO, useNA = "ifany")
+table(dados_sim_2$SEXO, useNA = "ifany")
+table(dados_sim_2$RACACOR, useNA = "ifany")
+table(dados_sim_2$ESC2010, useNA = "ifany")
+table(dados_sim_2$TPMORTEOCO, useNA = "ifany")
+
+str(dados_sim_2)
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 6 commit com a mensagem "script BDEM - SIM - tarefas 1 a 6" e envie para o repositório Projeto_BDEM_2016
 
 
