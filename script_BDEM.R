@@ -73,6 +73,21 @@ str(dados_sim_1)
 # 50:16749     51:17535    52:38074    53:12050 
 
 
+# ---------------------------------------------------------------------------
+# A UF de trabalho é PERNAMBUCO, cujo código é 26
+# CODMUNRES tem 6 dígitos e os dois primeiros identificam a UF de residência
+# O which() é usado para que eventuais NA em CODMUNRES não gerem linhas vazias
+dados_sim_2 = dados_sim_1[which(substr(dados_sim_1$CODMUNRES, 1, 2) == "26"), ]
+
+# Conferindo com o número de óbitos de PE informado no roteiro
+nrow(dados_sim_2)   # esperado: 66928 óbitos (26: PE)
+
+# Conferindo que sobraram apenas municípios de PE
+table(substr(dados_sim_2$CODMUNRES, 1, 2))   # 26: 66928
+
+str(dados_sim_2)
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 3 commit com a mensagem "script BDEM - SIM - tarefas 1 a 3" e envie para o repositório Projeto_BDEM_2016
 
 
