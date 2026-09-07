@@ -99,6 +99,47 @@ str(dados_sim_2)
 # O propósito das avaliações acima é verificar se as categorias estão de acordo com o dicionário do SIM ou se aparecem categorias estranhas
 
 
+# ---------------------------------------------------------------------------
+# Frequência das categorias das variáveis qualitativas
+table(dados_sim_2$TIPOBITO, useNA = "ifany")
+# resultado: 2 (Não fetal): 66928 -> não há óbito fetal em PE em 2016
+
+table(dados_sim_2$SEXO, useNA = "ifany")
+# resultado: 0: 36    1: 37078    2: 29814
+# o código 0 não é categoria válida de sexo: no dicionário 0 e 9 são "ignorado"
+
+table(dados_sim_2$RACACOR, useNA = "ifany")
+# resultado: 1: 21268   2: 3732   3: 147   4: 40293   5: 176   e 1312 em branco (NA)
+
+table(dados_sim_2$ESC2010, useNA = "ifany")
+# resultado: 0: 18060   1: 19948   2: 9228   3: 6603   4: 425   5: 2058   9: 6200
+# e 4406 em branco (NA); o código 9 é "ignorado"
+
+table(dados_sim_2$TPMORTEOCO, useNA = "ifany")
+# resultado: 1: 41   2: 8   4: 50   5: 22   8: 2520   9: 544   e 63743 em branco (NA)
+# o campo só é preenchido em caso de óbito de mulher em idade fértil
+# o código 9 é "ignorado"
+
+# CAUSABAS é o código da CID-10 da causa básica, portanto tem muitas categorias
+length(table(dados_sim_2$CAUSABAS))                               # número de códigos diferentes
+head(sort(table(dados_sim_2$CAUSABAS), decreasing = TRUE), 10)    # 10 causas mais frequentes
+sum(dados_sim_2$CAUSABAS == "", na.rm = TRUE)                     # códigos em branco: 0
+
+# Avaliação dos valores da variável IDADE
+summary(dados_sim_2$IDADE)
+
+# IDADE tem 3 dígitos: o primeiro é a unidade de medida e os dois últimos a quantidade
+# Unidades: 0: minutos, 1: horas, 2: dias, 3: meses, 4: anos, 5: idade maior que 100 anos
+# ATENÇÃO: a unidade de medida de IDADE no DICIONÁRIO do SIM está errada
+# Como IDADE foi lida como número, a unidade é obtida pela divisão inteira por 100
+table(dados_sim_2$IDADE %/% 100, useNA = "ifany")
+# resultado: 0: 191   1: 283   2: 824   3: 523   4: 64298   5: 614   9: 195
+# a unidade 9 não consta da lista acima: corresponde a idade ignorada (999)
+
+# Quantidade de unidades (os dois últimos dígitos) dentro de cada unidade de medida
+tapply(dados_sim_2$IDADE %% 100, dados_sim_2$IDADE %/% 100, range)
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 4 commit com a mensagem "script BDEM - SIM - tarefas 1 a 4" e envie para o repositório Projeto_BDEM_2016
 
 
