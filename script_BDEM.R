@@ -407,6 +407,17 @@ SIM_PE$TO[1] == sum(SIM_PE$TO[-1])    # deve ser TRUE
 
 # Tarefa 8. Exportar o banco de dados com o nome SIM_UF.csv (Exemplo: SIM_RJ.csv)
 
+# ---------------------------------------------------------------------------
+# Exportação usando ";" como separador, igual aos arquivos lidos com read.csv2
+write.csv2(SIM_PE, "SIM_PE.csv", row.names = FALSE)
+
+# Conferindo o arquivo exportado
+file.exists("SIM_PE.csv")
+confere = read.csv2("SIM_PE.csv")
+dim(confere)        # 187 linhas e 40 colunas
+head(confere[, 1:8])
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 8 fazer um commit com o comentário "dados SIM_UF 2016 e script - SIM - tarefas 1 a 8"  e envie para o repositório Projeto_BDEM_2016
 
 
