@@ -237,6 +237,171 @@ str(dados_sim_2)
 # Atenção: a ordem das variáveis do arquivo deve ser respeitada
 
 
+# ---------------------------------------------------------------------------
+# O banco tem 1 linha da UF (CODMUNRES = 26) seguida de 1 linha por município
+# As variáveis auxiliares abaixo são criadas FORA de dados_sim_2
+
+# --- Idade em dias e em anos -----------------------------------------------
+# IDADE tem 3 dígitos: o 1o é a unidade de medida e os 2 últimos a quantidade
+# 0: minutos, 1: horas, 2: dias, 3: meses, 4: anos, 5: idade maior que 100 anos
+UNIDADE = dados_sim_2$IDADE %/% 100
+QUANT   = dados_sim_2$IDADE %%  100
+
+IDADE_DIAS = ifelse(UNIDADE == 0, 0,
+             ifelse(UNIDADE == 1, 0,
+             ifelse(UNIDADE == 2, QUANT,
+             ifelse(UNIDADE == 3, QUANT * 30,
+             ifelse(UNIDADE == 4, QUANT * 365,
+             ifelse(UNIDADE == 5, (100 + QUANT) * 365, NA))))))
+
+IDADE_ANOS = ifelse(UNIDADE %in% c(0, 1, 2, 3), 0,
+             ifelse(UNIDADE == 4, QUANT,
+             ifelse(UNIDADE == 5, 100 + QUANT, NA)))
+
+# --- Capítulos da CID-10 a partir de CAUSABAS ------------------------------
+CB_LETRA  = substr(dados_sim_2$CAUSABAS, 1, 1)
+CB_NUMERO = as.numeric(substr(dados_sim_2$CAUSABAS, 2, 3))
+
+EXTERNA = CB_LETRA %in% c("V", "W", "X", "Y")            # V01-Y98
+NATURAL = !EXTERNA & !is.na(dados_sim_2$CAUSABAS)        # todas as demais
+
+CAP_I = NATURAL & CB_LETRA %in% c("A", "B")              # A00-B99
+CAP_N = NATURAL & (CB_LETRA %in% "C" |                   # C00-D48 e D50-D89
+                   (CB_LETRA %in% "D" &
+                    ((CB_NUMERO >= 0 & CB_NUMERO <= 48) |
+                     (CB_NUMERO >= 50 & CB_NUMERO <= 89))))
+CAP_C = NATURAL & CB_LETRA %in% "I"                      # I00-I99
+CAP_R = NATURAL & CB_LETRA %in% "J"                      # J00-J99
+CAP_O = NATURAL & !CAP_I & !CAP_N & !CAP_C & !CAP_R      # demais causas naturais
+
+# --- Registros completos ---------------------------------------------------
+# TORC precisa das 87 variáveis, então usa dados_sim (e não dados_sim_2)
+dados_sim_87 = dados_sim[which(substr(dados_sim$CODMUNRES, 1, 2) == "26"), ]
+
+# a ordem das linhas é a mesma de dados_sim_2, pois os dois vieram do mesmo filtro
+identical(dados_sim_87$CONTADOR, dados_sim_2$CONTADOR)   # deve ser TRUE
+
+# campos em branco também contam como "não informado"
+for (v in names(dados_sim_87)) {
+  dados_sim_87[[v]][dados_sim_87[[v]] %in% ""] = NA
+}
+
+COMPLETO_87 = complete.cases(dados_sim_87)
+COMPLETO_9  = complete.cases(dados_sim_2)
+
+sum(COMPLETO_87)   # resultado: 0 (ver observação no fim da Tarefa 7)
+sum(COMPLETO_9)    # resultado: 2297
+
+# --- Grupos usados em várias variáveis -------------------------------------
+NEONATAL = !is.na(IDADE_DIAS) & IDADE_DIAS >= 0 & IDADE_DIAS <= 27
+FERTIL   = !is.na(IDADE_ANOS) & IDADE_ANOS >= 15 & IDADE_ANOS <= 49
+
+MATERNO_P = dados_sim_2$TPMORTEOCO %in% c("Na gravidez", "No parto",
+                                          "No abortamento",
+                                          "Até 42 dias após o término do parto")
+MATERNO   = MATERNO_P |
+            dados_sim_2$TPMORTEOCO %in% "De 43 dias a 1 ano após o término da gestação"
+
+# --- Indicadores, um por variável do arquivo "Variáveis - Tarefa 7 - SIM" ---
+IND = data.frame(
+  TO           = rep(TRUE, nrow(dados_sim_2)),                  #  4 total de óbitos
+  TORC         = COMPLETO_87,                                   #  5 completos nas 87 variáveis
+  TORCR        = COMPLETO_9,                                    #  6 completos nas variáveis selecionadas
+  TO_NN        = EXTERNA,                                       #  7 causas externas
+  TO_N         = NATURAL,                                       #  8 causas naturais
+  TO_CB_I      = CAP_I,                                         #  9 infecciosas e parasitárias
+  TO_CB_N      = CAP_N,                                         # 10 neoplasias e doenças do sangue
+  TO_CB_C      = CAP_C,                                         # 11 aparelho circulatório
+  TO_CB_R      = CAP_R,                                         # 12 aparelho respiratório
+  TO_CB_O      = CAP_O,                                         # 13 outras causas naturais
+  TO_M         = dados_sim_2$SEXO %in% "Masculino",             # 14 óbitos masculinos
+  TO_F         = dados_sim_2$SEXO %in% "Feminino",              # 15 óbitos femininos
+  TO_F_IF      = dados_sim_2$SEXO %in% "Feminino" & FERTIL,     # 16 femininos em idade fértil
+  TO_FT        = dados_sim_2$TIPOBITO %in% "Fetal",             # 17 óbitos fetais
+  TO_NT        = NEONATAL,                                      # 18 neonatais (0 a 27 dias)
+  TO_NT_P      = !is.na(IDADE_DIAS) & IDADE_DIAS <= 6,          # 19 neonatais precoces (0 a 6 dias)
+  TO_NT_T      = !is.na(IDADE_DIAS) &
+                 IDADE_DIAS >= 7 & IDADE_DIAS <= 27,            # 20 neonatais tardios (7 a 27 dias)
+  TO_PNT       = !is.na(IDADE_DIAS) &
+                 IDADE_DIAS >= 28 & IDADE_DIAS <= 364,          # 21 pós-neonatais (28 a 364 dias)
+  TONT_B       = NEONATAL & dados_sim_2$RACACOR %in% "Branca",  # 22 neonatais brancos
+  TONT_PT      = NEONATAL & dados_sim_2$RACACOR %in% "Preta",   # 23 neonatais pretos
+  TONT_A       = NEONATAL & dados_sim_2$RACACOR %in% "Amarela", # 24 neonatais amarelos
+  TONT_PD      = NEONATAL & dados_sim_2$RACACOR %in% "Parda",   # 25 neonatais pardos
+  TONT_I       = NEONATAL & dados_sim_2$RACACOR %in% "Indígena",# 26 neonatais indígenas
+  TO_MT        = MATERNO,                                       # 27 maternos (precoces e tardios)
+  TO_MT_DG     = dados_sim_2$TPMORTEOCO %in% "Na gravidez",     # 28 maternos na gestação
+  TO_MT_PT     = dados_sim_2$TPMORTEOCO %in% "No parto",        # 29 maternos no parto
+  TO_MT_AB     = dados_sim_2$TPMORTEOCO %in% "No abortamento",  # 30 maternos no abortamento
+  TO_MT_42     = dados_sim_2$TPMORTEOCO %in%
+                 "Até 42 dias após o término do parto",         # 31 maternos até 42 dias
+  TO_MT_43     = dados_sim_2$TPMORTEOCO %in%
+                 "De 43 dias a 1 ano após o término da gestação",# 32 maternos tardios
+  TO_MT_P      = MATERNO_P,                                     # 33 maternos precoces
+  TO_MT_P_I    = MATERNO_P & FERTIL,                            # 34 maternos precoces em idade fértil
+  TO_MT_P_ES   = MATERNO_P & dados_sim_2$ESC2010 %in%
+                 "Sem escolaridade",                            # 35 maternos precoces sem escolaridade
+  TO_MT_P_EFI  = MATERNO_P & dados_sim_2$ESC2010 %in%
+                 "Fundamental I",                               # 36 maternos precoces fundamental I
+  TO_MT_P_EFII = MATERNO_P & dados_sim_2$ESC2010 %in%
+                 "Fundamental II",                              # 37 maternos precoces fundamental II
+  TO_MT_P_EM   = MATERNO_P & dados_sim_2$ESC2010 %in% "Médio",  # 38 maternos precoces médio
+  TO_MT_P_ESI  = MATERNO_P & dados_sim_2$ESC2010 %in%
+                 "Superior incompleto",                         # 39 maternos precoces superior incompleto
+  TO_MT_P_ESC  = MATERNO_P & dados_sim_2$ESC2010 %in%
+                 "Superior completo"                            # 40 maternos precoces superior completo
+)
+
+# --- Linha da UF (CODMUNRES = 26) ------------------------------------------
+linha_uf = data.frame(ANO = 2016, NIVEL = "UF", CODMUNRES = 26,
+                      t(colSums(IND)))
+
+# --- Linhas dos municípios --------------------------------------------------
+MUN  = sort(unique(dados_sim_2$CODMUNRES))
+FMUN = factor(dados_sim_2$CODMUNRES, levels = MUN)
+
+linhas_municipio = data.frame(ANO = 2016, NIVEL = "MUNICIPIO", CODMUNRES = MUN)
+for (v in names(IND)) {
+  linhas_municipio[[v]] = as.vector(tapply(IND[[v]], FMUN, sum))
+}
+
+# --- Banco final, com a UF na 1a linha --------------------------------------
+SIM_PE = rbind(linha_uf, linhas_municipio)
+
+# Conferindo o banco criado
+dim(SIM_PE)      # 187 linhas (1 UF + 186 municípios) e 40 colunas
+names(SIM_PE)    # a ordem deve ser a mesma do arquivo da Tarefa 7
+str(SIM_PE)
+head(SIM_PE[, 1:8])
+
+# Conferindo se a linha da UF é igual à soma dos municípios
+SIM_PE$TO[1] == sum(SIM_PE$TO[-1])    # deve ser TRUE
+
+# Resultados obtidos para a linha da UF (26 - PE):
+# TO 66928        TORC 0            TORCR 2297        TO_NN 9114
+# TO_N 57814      TO_CB_I 3377      TO_CB_N 9086      TO_CB_C 18765
+# TO_CB_R 8525    TO_CB_O 18061     TO_M 37078        TO_F 29814
+# TO_F_IF 3316    TO_FT 0           TO_NT 1279        TO_NT_P 967
+# TO_NT_T 312     TO_PNT 542        TONT_B 217        TONT_PT 14
+# TONT_A 1        TONT_PD 941       TONT_I 10         TO_MT 121
+# TO_MT_DG 41     TO_MT_PT 8        TO_MT_AB 0        TO_MT_42 50
+# TO_MT_43 22     TO_MT_P 99        TO_MT_P_I 83      TO_MT_P_ES 3
+# TO_MT_P_EFI 15  TO_MT_P_EFII 37   TO_MT_P_EM 24     TO_MT_P_ESI 1
+# TO_MT_P_ESC 1
+
+# OBSERVAÇÕES:
+# 1. TORC dá 0 em todos os municípios. Não é erro do script: 6 das 87 variáveis
+#    do SIM (ESTABDESCR, CB_PRE, NUDIASOBIN, NUDIASINF, DTCONCASO e FONTESINF)
+#    estão vazias em TODOS os registros do arquivo, logo nenhum óbito pode ter
+#    registro completo nas 87 variáveis.
+# 2. O arquivo da Tarefa 7 fala em "14 variáveis selecionadas do SIM" para o
+#    TORCR, mas a Tarefa 2 do roteiro seleciona 9 colunas. Aqui foram usadas as
+#    9 variáveis de dados_sim_2.
+# 3. PE tem 185 municípios, mas aparecem 186 códigos: o código 260000
+#    ("município ignorado") tem 301 óbitos e foi mantido para que a soma dos
+#    municípios continue batendo com o total da UF.
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 7 commit com a mensagem "script BDEM - SIM - tarefas 1 a 7" e envie para o repositório Projeto_BDEM_2016
 
 
