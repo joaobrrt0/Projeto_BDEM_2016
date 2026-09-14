@@ -246,6 +246,82 @@ head(dados_bd2)
 # TAIC: total de compradores com perfil AIC
 # TGIC: total de compradores com perfil GIC
 
+
+# ---------------------------------------------------------------------------
+# --- Indicadores de contagem, um por variável pedida acima -----------------
+# Cada coluna é um vetor lógico: TRUE quando a linha entra na contagem
+# O %in% é usado no lugar de == porque ele devolve FALSE (e não NA) nos NA
+IND = data.frame(
+  TVV       = rep(TRUE, nrow(dados_bd2)),                 # total de veículos vendidos
+  TCV       = dados_bd2$TIPO_VEICULO      %in% "Carro",   # carros vendidos
+  TMV       = dados_bd2$TIPO_VEICULO      %in% "Moto",    # motos vendidas
+  TVVF      = dados_bd2$SEXO_PROPRIETARIO %in% "Feminino",   # vendidos para mulher
+  TVVM      = dados_bd2$SEXO_PROPRIETARIO %in% "Masculino",  # vendidos para homem
+  TVC_22_34 = dados_bd2$F_IDADE           %in% "22 a 34", # compradores de 22 a 34 anos
+  TVC_35_45 = dados_bd2$F_IDADE           %in% "35 a 45", # compradores de 35 a 45 anos
+  TPIC      = dados_bd2$PAM               %in% "PIC",     # perfil PIC
+  TAIC      = dados_bd2$PAM               %in% "AIC",     # perfil AIC
+  TGIC      = dados_bd2$PAM               %in% "GIC"      # perfil GIC
+)
+
+# --- Função das medidas de posição e de dispersão de VALOR_VEICULO ---------
+# Todas com na.rm = TRUE, ou seja, calculadas sem considerar os NAs
+medidas = function(x) {
+  c(VMV   = mean(x, na.rm = TRUE),
+    DPV   = sd(x, na.rm = TRUE),
+    V_P25 = quantile(x, 0.25, na.rm = TRUE, names = FALSE),
+    V_P50 = quantile(x, 0.50, na.rm = TRUE, names = FALSE),
+    V_P75 = quantile(x, 0.75, na.rm = TRUE, names = FALSE))
+}
+
+# --- Municípios do RJ presentes no banco -----------------------------------
+MUN  = sort(unique(dados_bd2$MUNICIPIO))
+FMUN = factor(dados_bd2$MUNICIPIO, levels = MUN)
+length(MUN)   # 11 municípios
+
+# --- Contagens: 1a linha é a UF 33 (todo o estado) e depois os municípios ---
+CONT = rbind(colSums(IND),
+             sapply(IND, function(v) as.vector(tapply(v, FMUN, sum))))
+
+# --- Medidas: 1a linha é a UF 33 e depois os municípios --------------------
+MED = rbind(medidas(dados_bd2$VALOR_VEICULO),
+            t(sapply(split(dados_bd2$VALOR_VEICULO, FMUN), medidas)))
+
+# Valores em reais arredondados para 2 casas decimais
+MED = round(MED, 2)
+
+# --- Banco final, com a UF na 1a linha e na ordem de variáveis pedida ------
+BANCO2_RJ = data.frame(
+  ANO    = 2025,
+  NIVEL  = c("UF", rep("MUNICIPIO", length(MUN))),
+  CODIGO = c(33, MUN),
+  CONT[, c("TVV", "TCV", "TMV", "TVVF", "TVVM", "TVC_22_34", "TVC_35_45")],
+  MED[,  c("VMV", "DPV", "V_P25", "V_P50", "V_P75")],
+  CONT[, c("TPIC", "TAIC", "TGIC")],
+  row.names = NULL
+)
+
+# Conferindo o banco criado
+dim(BANCO2_RJ)     # 12 linhas (1 UF + 11 municípios) e 18 colunas
+names(BANCO2_RJ)   # a ordem deve ser a mesma da lista da Tarefa 4
+str(BANCO2_RJ)
+BANCO2_RJ
+
+# Conferindo se a linha da UF é igual à soma das linhas dos municípios
+BANCO2_RJ$TVV[1]  == sum(BANCO2_RJ$TVV[-1])    # deve ser TRUE
+BANCO2_RJ$TPIC[1] == sum(BANCO2_RJ$TPIC[-1])   # deve ser TRUE
+
+# Conferindo se os totais fecham entre si
+BANCO2_RJ$TVV[1] == BANCO2_RJ$TCV[1]  + BANCO2_RJ$TMV[1]    # TRUE
+BANCO2_RJ$TVV[1] == BANCO2_RJ$TVVF[1] + BANCO2_RJ$TVVM[1]   # TRUE
+
+# OBSERVAÇÕES:
+# 1. TVC_22_34 + TVC_35_45 dá 49 e não 50 porque um comprador está sem idade.
+# 2. TPIC + TAIC + TGIC dá 14 e não 29 (o total de carros vendidos) porque a
+#    Tabela_PAM só traz os percentis das idades de 25 a 35 anos: os demais
+#    compradores de carro ficam sem perfil (PAM = NA) e não são contados.
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 4 commit com a mensagem " script - tarefa 1 a 4" e envie para o repositório Treino_Extensao
 
 
