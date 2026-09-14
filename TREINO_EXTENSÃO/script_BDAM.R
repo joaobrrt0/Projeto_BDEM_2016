@@ -64,6 +64,40 @@
 # Tarefa 1: Leitura do banco de dados banco 2 = SINASC.csv com o nome de dados_bd2
 # Ler o arquivo, verificar estrutura dos dados e dar uma olhada nos dados
 
+
+# ---------------------------------------------------------------------------
+# UF de trabalho: RIO DE JANEIRO (RJ) - código 33
+# Definir a pasta de trabalho como sendo a pasta TREINO_EXTENSÃO do repositório local
+# setwd("C:/Users/User/Desktop/Projeto_BDEM_2016/TREINO_EXTENSÃO")
+
+# Leitura do banco de dados: o arquivo tem separador "," (por isso read.csv)
+dados_bd2 = read.csv("banco 2 = SINASC - banco 2 = SINASC.csv")
+
+# Verificando se a leitura foi feita corretamente
+dim(dados_bd2)     # esperado: 50 linhas e 5 colunas
+nrow(dados_bd2)    # 50
+ncol(dados_bd2)    # 5
+
+# Verificando a estrutura dos dados
+str(dados_bd2)
+names(dados_bd2)
+# "MUNICIPIO" "SEXO_PROPRIETARIO" "IDADE_PROPRIETARIO" "TIPO_VEICULO" "VALOR_VEICULO"
+
+# Dando uma olhada nos dados
+head(dados_bd2)
+summary(dados_bd2)
+
+# Frequência das categorias das variáveis qualitativas, já procurando categorias estranhas
+table(dados_bd2$MUNICIPIO, useNA = "ifany")           # 11 municípios do RJ (códigos 33xxxx)
+table(dados_bd2$SEXO_PROPRIETARIO, useNA = "ifany")   # a mesma categoria aparece escrita de várias formas
+# feminino 25, Feminino 1, FEMININO 1, masculino 21, Masculino 1, MASCULINO 1
+table(dados_bd2$TIPO_VEICULO, useNA = "ifany")        # 1: 29 e 2: 21, ainda sem legenda
+
+# Valores em branco (NA) nas variáveis quantitativas
+sum(is.na(dados_bd2$IDADE_PROPRIETARIO))   # 1 comprador sem idade informada
+sum(is.na(dados_bd2$VALOR_VEICULO))        # 1 veículo sem valor informado
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 1 commit com a mensagem " script - tarefa 1" e envie para o repositório Treino_Extensao
 
 
