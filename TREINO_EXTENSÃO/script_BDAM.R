@@ -327,6 +327,22 @@ BANCO2_RJ$TVV[1] == BANCO2_RJ$TVVF[1] + BANCO2_RJ$TVVM[1]   # TRUE
 
 # Tarefa 5: Exportar o banco de dados BANCO2_RJ com o nome BANCO2_RJ.csv
 
+
+# ---------------------------------------------------------------------------
+# Exportação usando "," como separador, igual aos arquivos lidos com read.csv
+write.csv(BANCO2_RJ, "BANCO2_RJ.csv", row.names = FALSE)
+
+# Conferindo o arquivo exportado
+file.exists("BANCO2_RJ.csv")
+confere = read.csv("BANCO2_RJ.csv")
+dim(confere)      # 12 linhas e 18 colunas
+names(confere)
+head(confere)
+
+# O banco lido de volta deve ser igual ao que foi exportado
+all.equal(confere, BANCO2_RJ)   # deve ser TRUE
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 5 commit com a mensagem "dados e script - Etapa 2" e envie para o repositório Treino_Extensao
 
 
