@@ -75,7 +75,15 @@
 # Ao terminar a Tarefa 2 commit com a mensagem " script - tarefa 1 a 2" e envie para o repositório Treino_Extensao
 
 
-# Tarefa 3: Criar o banco de dados BANCO2_RJ, POR MUNICÍPIO, com as seguintes variáveis listadas abaixo. 
+# Tarefa 3: Leitura do banco de dados Tabela_PAM.csv (com o nome tabela_pam) e:
+# agregar ao banco dados_bd2 as informações de VALOR_P10 e VALOR_P90
+# criar a variável PAM (somente quando TIPO_VEICULO = "Carro"), de acordo com IDADE_PROPRIETARIO e SEXO_PROPRIETARIO, com as seguintes categorias:
+# PAM = "PIC", se VALOR_VEICULO < VALOR_P10; "AIC", se VALOR_P10 <= VALOR_VEICULO <= VALOR_P90; "GIC", se VALOR_VEICULO > VALOR_P90
+
+# Ao terminar a Tarefa 3 commit com a mensagem " script - tarefa 1 a 3" e envie para o repositório Treino_Extensao
+
+ 
+# Tarefa 4: Criar o banco de dados BANCO2_RJ, POR MUNICÍPIO, com as seguintes variáveis listadas abaixo. 
 # Variáveis que se referem a medidas de posição e de dispersão devem ser calculadas sem considerar NAs
 
 # Atenção: a 1a linha do banco deve ser da UF 33
@@ -94,13 +102,16 @@
 # V_P25: percentil 25 do valor dos veículos vendidos
 # V_P50: percentil 50 do valor dos veículos vendidos
 # V_P75: percentil 75 do valor dos veículos vendidos
+# TPIC: total de compradores com perfil PIC
+# TAIC: total de compradores com perfil AIC
+# TGIC: total de compradores com perfil GIC
 
-# Ao terminar a Tarefa 3 commit com a mensagem " script - tarefa 1 a 3" e envie para o repositório Treino_Extensao
+# Ao terminar a Tarefa 4 commit com a mensagem " script - tarefa 1 a 4" e envie para o repositório Treino_Extensao
 
 
-# Tarefa 4: Exportar o banco de dados BANCO2_RJ com o nome BANCO2_RJ.csv
+# Tarefa 5: Exportar o banco de dados BANCO2_RJ com o nome BANCO2_RJ.csv
 
-# Ao terminar a Tarefa 4 commit com a mensagem "dados e script - Etapa 2" e envie para o repositório Treino_Extensao
+# Ao terminar a Tarefa 5 commit com a mensagem "dados e script - Etapa 2" e envie para o repositório Treino_Extensao
 
 
 
