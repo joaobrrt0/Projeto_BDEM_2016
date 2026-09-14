@@ -106,6 +106,43 @@ sum(is.na(dados_bd2$VALOR_VEICULO))        # 1 veículo sem valor informado
 # Atribuir legendas para a variável TIPO_VEICULO, sendo 1: Carro e 2: Moto
 # Criar uma nova variável em dados_bd2 F_IDADE categorizando as idades em: 22 a 34, 35 a 45
 
+
+# ---------------------------------------------------------------------------
+# --- SEXO_PROPRIETARIO: padronizar para Masculino e Feminino ---------------
+# A variável foi digitada em caixas diferentes (feminino, Feminino, FEMININO, ...)
+# tolower() uniformiza tudo em letras minúsculas e trimws() tira espaços em branco
+sexo = tolower(trimws(dados_bd2$SEXO_PROPRIETARIO))
+table(sexo, useNA = "ifany")   # agora só "feminino" (27) e "masculino" (23)
+
+# Qualquer valor que não seja um dos dois vira NA
+dados_bd2$SEXO_PROPRIETARIO = ifelse(sexo == "masculino", "Masculino",
+                              ifelse(sexo == "feminino",  "Feminino", NA))
+
+table(dados_bd2$SEXO_PROPRIETARIO, useNA = "ifany")   # Feminino: 27   Masculino: 23
+
+# --- TIPO_VEICULO: 1 = Carro e 2 = Moto ------------------------------------
+dados_bd2$TIPO_VEICULO = factor(dados_bd2$TIPO_VEICULO,
+                                levels = c(1, 2),
+                                labels = c("Carro", "Moto"))
+
+table(dados_bd2$TIPO_VEICULO, useNA = "ifany")        # Carro: 29   Moto: 21
+
+# --- F_IDADE: faixas etárias 22 a 34 e 35 a 45 -----------------------------
+# right = FALSE faz os intervalos ficarem fechados à esquerda: [22, 35) e [35, 46)
+# ou seja, 22 a 34 anos completos e 35 a 45 anos completos
+dados_bd2$F_IDADE = cut(dados_bd2$IDADE_PROPRIETARIO,
+                        breaks = c(22, 35, 46),
+                        right  = FALSE,
+                        labels = c("22 a 34", "35 a 45"))
+
+table(dados_bd2$F_IDADE, useNA = "ifany")
+# 22 a 34: 27   35 a 45: 22   NA: 1 (o comprador sem idade informada)
+
+# Conferindo o banco depois das manipulações
+str(dados_bd2)
+head(dados_bd2)
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 2 commit com a mensagem " script - tarefa 1 a 2" e envie para o repositório Treino_Extensao
 
 
