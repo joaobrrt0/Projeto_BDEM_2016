@@ -151,6 +151,75 @@ head(dados_bd2)
 # criar a variável PAM (somente quando TIPO_VEICULO = "Carro"), de acordo com IDADE_PROPRIETARIO e SEXO_PROPRIETARIO, com as seguintes categorias:
 # PAM = "PIC", se VALOR_VEICULO < VALOR_P10; "AIC", se VALOR_P10 <= VALOR_VEICULO <= VALOR_P90; "GIC", se VALOR_VEICULO > VALOR_P90
 
+
+# ---------------------------------------------------------------------------
+# Leitura da Tabela_PAM (arquivo também separado por ",")
+tabela_pam = read.csv("Tabela_PAM - Tabela_PAM.csv")
+
+# Verificando a leitura e a estrutura dos dados
+dim(tabela_pam)    # 22 linhas e 4 colunas
+str(tabela_pam)
+head(tabela_pam)
+# "IDADE_PROPRIETARIO" "SEXO_PROPRIETARIO" "VALOR_P10" "VALOR_P90"
+
+# ATENÇÃO: a tabela só traz os percentis das idades de 25 a 35 anos
+range(tabela_pam$IDADE_PROPRIETARIO)             # 25 e 35
+table(tabela_pam$SEXO_PROPRIETARIO)              # Feminino: 11   Masculino: 11
+
+# --- Agregando VALOR_P10 e VALOR_P90 a dados_bd2 ---------------------------
+# O merge é feito pelo par (IDADE_PROPRIETARIO, SEXO_PROPRIETARIO)
+# all.x = TRUE mantém todas as 50 linhas de dados_bd2, mesmo as que não têm
+# correspondência na tabela (idades fora do intervalo de 25 a 35 anos)
+# A variável ORDEM serve apenas para devolver as linhas à ordem original,
+# porque o merge reordena o banco
+dados_bd2$ORDEM = seq_len(nrow(dados_bd2))
+
+dados_bd2 = merge(dados_bd2, tabela_pam,
+                  by    = c("IDADE_PROPRIETARIO", "SEXO_PROPRIETARIO"),
+                  all.x = TRUE)
+
+dados_bd2 = dados_bd2[order(dados_bd2$ORDEM), ]
+dados_bd2$ORDEM = NULL
+row.names(dados_bd2) = NULL
+
+# O merge também joga as colunas do "by" para a frente: devolvendo a ordem original
+dados_bd2 = dados_bd2[, c("MUNICIPIO", "SEXO_PROPRIETARIO", "IDADE_PROPRIETARIO",
+                          "TIPO_VEICULO", "VALOR_VEICULO", "F_IDADE",
+                          "VALOR_P10", "VALOR_P90")]
+
+nrow(dados_bd2)                    # continua com 50 linhas
+sum(is.na(dados_bd2$VALOR_P10))    # 27 linhas sem percentis (idade fora de 25 a 35)
+
+# --- Criando a variável PAM (somente para TIPO_VEICULO = "Carro") ----------
+# O which() é usado para que os NA (de VALOR_VEICULO, de VALOR_P10 e de
+# VALOR_P90) não gerem erro na atribuição por índice lógico
+dados_bd2$PAM = NA
+
+CARRO = dados_bd2$TIPO_VEICULO %in% "Carro"
+
+dados_bd2$PAM[which(CARRO &
+                    dados_bd2$VALOR_VEICULO < dados_bd2$VALOR_P10)] = "PIC"
+
+dados_bd2$PAM[which(CARRO &
+                    dados_bd2$VALOR_VEICULO >= dados_bd2$VALOR_P10 &
+                    dados_bd2$VALOR_VEICULO <= dados_bd2$VALOR_P90)] = "AIC"
+
+dados_bd2$PAM[which(CARRO &
+                    dados_bd2$VALOR_VEICULO > dados_bd2$VALOR_P90)] = "GIC"
+
+table(dados_bd2$PAM, useNA = "ifany")
+# resultado: AIC: 9   GIC: 2   PIC: 3   NA: 36
+# Fica NA quem comprou moto (21 compradores) e quem comprou carro mas está fora
+# das idades de 25 a 35 anos cobertas pela Tabela_PAM, ou está sem idade / sem
+# valor do veículo informado (15 compradores)
+
+# Conferindo: PAM só foi preenchida para carros
+table(dados_bd2$TIPO_VEICULO, dados_bd2$PAM, useNA = "ifany")
+
+str(dados_bd2)
+head(dados_bd2)
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 3 commit com a mensagem " script - tarefa 1 a 3" e envie para o repositório Treino_Extensao
 
  
