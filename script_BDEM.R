@@ -769,6 +769,72 @@ str(dados_sinasc_2)
 # Ao categorizar as variáveis, garantir que sejam transformadas em tipo fator
 
 
+# ---------------------------------------------------------------------------
+# O cut() já devolve fator e mantém NA como NA, atendendo à atenção do roteiro
+# right = FALSE faz o intervalo ser fechado à esquerda e aberto à direita
+
+# F_PESO: < 2500 Baixo peso, >= 2500 e < 4000 Peso normal, >= 4000 Macrossomia
+dados_sinasc_2$F_PESO = cut(dados_sinasc_2$PESO,
+                            breaks = c(-Inf, 2500, 4000, Inf),
+                            right  = FALSE,
+                            labels = c("Baixo peso", "Peso normal", "Macrossomia"))
+
+# F_IDADE: faixas etárias da mãe
+dados_sinasc_2$F_IDADE = cut(dados_sinasc_2$IDADEMAE,
+                             breaks = c(-Inf, 15, 20, 25, 30, 35, 40, 45, 50, Inf),
+                             right  = FALSE,
+                             labels = c("<15", "15-19", "20-24", "25-29", "30-34",
+                                        "35-39", "40-44", "45-49", "50+"))
+
+# F_APGAR5: < 7 Baixo, >= 7 Normal
+dados_sinasc_2$F_APGAR5 = cut(dados_sinasc_2$APGAR5,
+                              breaks = c(-Inf, 7, Inf),
+                              right  = FALSE,
+                              labels = c("Baixo", "Normal"))
+
+# PEREG: deslocamento materno (peregrinação)
+# Não: nasceu no município de residência; Sim: nasceu em outro município
+dados_sinasc_2$PEREG = factor(ifelse(dados_sinasc_2$CODMUNNASC ==
+                                     dados_sinasc_2$CODMUNRES, "Não", "Sim"),
+                              levels = c("Não", "Sim"))
+
+# ESTCIV: ESTCIVMAE já é fator, então a comparação é feita pelas legendas
+# Sem companheiro: solteira, viúva ou separada; Com companheiro: casada ou união estável
+dados_sinasc_2$ESTCIV = factor(
+  ifelse(dados_sinasc_2$ESTCIVMAE %in% c("Solteira", "Viúva",
+                                         "Separada judicialmente/divorciada"),
+         "Sem companheiro",
+  ifelse(dados_sinasc_2$ESTCIVMAE %in% c("Casada", "União estável"),
+         "Com companheiro", NA)),
+  levels = c("Sem companheiro", "Com companheiro"))
+
+# Conferindo as variáveis criadas
+table(dados_sinasc_2$F_PESO, useNA = "ifany")
+# resultado: Baixo peso: 10204   Peso normal: 112988   Macrossomia: 7527   NA: 14
+
+table(dados_sinasc_2$F_IDADE, useNA = "ifany")
+# resultado: <15: 1298   15-19: 25751   20-24: 35486   25-29: 30788
+# 30-34: 22944   35-39: 11370   40-44: 2924   45-49: 159   50+: 13
+
+table(dados_sinasc_2$F_APGAR5, useNA = "ifany")
+# resultado: Baixo: 1575   Normal: 128240   NA: 918
+
+table(dados_sinasc_2$PEREG, useNA = "ifany")
+# resultado: Não: 61838   Sim: 68895
+
+table(dados_sinasc_2$ESTCIV, useNA = "ifany")
+# resultado: Sem companheiro: 57273   Com companheiro: 72390   NA: 1070
+
+# Conferindo que todas as novas variáveis são do tipo fator
+class(dados_sinasc_2$F_PESO)
+class(dados_sinasc_2$F_IDADE)
+class(dados_sinasc_2$F_APGAR5)
+class(dados_sinasc_2$PEREG)
+class(dados_sinasc_2$ESTCIV)
+
+str(dados_sinasc_2)
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 7 commit com a mensagem "script BDEM - SINASC - tarefas 1 a 7" e envie para o repositório Projeto_BDEM_2016
 
 
