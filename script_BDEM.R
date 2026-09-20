@@ -495,6 +495,21 @@ str(dados_sinasc_1)
 # 50: 42432     51: 53531     52: 95563     53: 43340 
 
 
+# ---------------------------------------------------------------------------
+# A UF de trabalho é PERNAMBUCO, cujo código é 26
+# CODMUNRES tem 6 dígitos e os dois primeiros identificam a UF de residência
+# O which() é usado para que eventuais NA em CODMUNRES não gerem linhas vazias
+dados_sinasc_2 = dados_sinasc_1[which(substr(dados_sinasc_1$CODMUNRES, 1, 2) == "26"), ]
+
+# Conferindo com o número de nascimentos de PE informado no roteiro
+nrow(dados_sinasc_2)   # esperado: 130733 nascimentos (26: PE)
+
+# Conferindo que sobraram apenas municípios de PE
+table(substr(dados_sinasc_2$CODMUNRES, 1, 2))   # 26: 130733
+
+str(dados_sinasc_2)
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 3 commit com a mensagem "script BDEM - SINASC - tarefas 1 a 3" e envie para o repositório Projeto_BDEM_2016
 
 
