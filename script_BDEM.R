@@ -602,6 +602,48 @@ summary(dados_sinasc_2$PESO)
 # Em variáveis quantitativas como IDADEMAE verificar se existem valores como 9999 para NA
 
 
+# ---------------------------------------------------------------------------
+# Variáveis em que o código 9 significa "Não informado ou Ignorado"
+dados_sinasc_2$LOCNASC[dados_sinasc_2$LOCNASC %in% c(9)]       = NA
+dados_sinasc_2$ESTCIVMAE[dados_sinasc_2$ESTCIVMAE %in% c(9)]   = NA
+dados_sinasc_2$GESTACAO[dados_sinasc_2$GESTACAO %in% c(9)]     = NA
+dados_sinasc_2$GRAVIDEZ[dados_sinasc_2$GRAVIDEZ %in% c(9)]     = NA
+dados_sinasc_2$PARTO[dados_sinasc_2$PARTO %in% c(9)]           = NA
+dados_sinasc_2$RACACOR[dados_sinasc_2$RACACOR %in% c(9)]       = NA
+dados_sinasc_2$IDANOMAL[dados_sinasc_2$IDANOMAL %in% c(9)]     = NA
+dados_sinasc_2$ESCMAE2010[dados_sinasc_2$ESCMAE2010 %in% c(9)] = NA
+dados_sinasc_2$RACACORMAE[dados_sinasc_2$RACACORMAE %in% c(9)] = NA
+dados_sinasc_2$TPAPRESENT[dados_sinasc_2$TPAPRESENT %in% c(9)] = NA
+dados_sinasc_2$KOTELCHUCK[dados_sinasc_2$KOTELCHUCK %in% c(9)] = NA
+
+# SEXO: pelo dicionário, I, 0 e 9 são "ignorado"
+dados_sinasc_2$SEXO[dados_sinasc_2$SEXO %in% c(0, 9)] = NA
+
+# TPROBSON: 11 significa "Não classificado por falta de informação"
+# aqui o 9 NÃO é ignorado: é o grupo 9 de Robson
+dados_sinasc_2$TPROBSON[dados_sinasc_2$TPROBSON %in% c(11)] = NA
+
+# PARIDADE: 0 (nulípara) e 1 (multípara) são as únicas categorias válidas
+# em PE não aparece o código 9, mas a linha fica para o caso de aparecer
+dados_sinasc_2$PARIDADE[dados_sinasc_2$PARIDADE %in% c(9)] = NA
+
+# APGAR5: o índice vai de 0 a 10, logo 99 é "ignorado"
+dados_sinasc_2$APGAR5[dados_sinasc_2$APGAR5 %in% c(99)] = NA
+
+# IDADEMAE, SEMAGESTAC e PESO: foram conferidos na Tarefa 4 e não têm
+# valores como 99 ou 9999 indicando NA, então nada é alterado
+
+# Conferindo o resultado da atribuição de NA
+table(dados_sinasc_2$LOCNASC, useNA = "ifany")
+table(dados_sinasc_2$SEXO, useNA = "ifany")
+table(dados_sinasc_2$TPROBSON, useNA = "ifany")
+table(dados_sinasc_2$KOTELCHUCK, useNA = "ifany")
+summary(dados_sinasc_2$APGAR5)   # agora o máximo passa a ser 10
+
+# Total de NA em cada variável do banco
+colSums(is.na(dados_sinasc_2))
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 5 commit com a mensagem "script BDEM - SINASC - tarefas 1 a 5" e envie para o repositório Projeto_BDEM_2016
 
 
