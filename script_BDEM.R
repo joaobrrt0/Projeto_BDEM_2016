@@ -518,6 +518,80 @@ str(dados_sinasc_2)
 # Avalie também os valores das variáveis quantitativas de IDADEMAE, SEMAGESTAC, APGAR5 e PESO
 
 
+# ---------------------------------------------------------------------------
+# Frequência das categorias das variáveis qualitativas
+table(dados_sinasc_2$LOCNASC, useNA = "ifany")
+# resultado: 1: 129893   2: 272   3: 376   4: 189   9: 3
+# a categoria 5 (aldeia indígena) não aparece em PE; o código 9 é "ignorado"
+
+table(dados_sinasc_2$ESTCIVMAE, useNA = "ifany")
+# resultado: 1: 55842   2: 37114   3: 313   4: 1118   5: 35276   9: 317
+# e 753 em branco (NA)
+
+table(dados_sinasc_2$GESTACAO, useNA = "ifany")
+# resultado: 1: 81   2: 660   3: 1336   4: 12812   5: 108319   6: 4691   9: 7
+# e 2827 em branco (NA)
+
+table(dados_sinasc_2$GRAVIDEZ, useNA = "ifany")
+# resultado: 1: 128209   2: 2291   3: 57   9: 1   e 175 em branco (NA)
+
+table(dados_sinasc_2$PARTO, useNA = "ifany")
+# resultado: 1: 64911   2: 65679   9: 2   e 141 em branco (NA)
+
+table(dados_sinasc_2$SEXO, useNA = "ifany")
+# resultado: 0: 25   1: 66785   2: 63923
+# o código 0 não é categoria válida de sexo: no dicionário 0 é "ignorado"
+
+table(dados_sinasc_2$RACACOR, useNA = "ifany")
+# resultado: 1: 23971   2: 5330   3: 349   4: 98445   5: 953
+# e 1685 em branco (NA); não aparece o código 9
+
+table(dados_sinasc_2$IDANOMAL, useNA = "ifany")
+# resultado: 1: 1517   2: 128679   9: 220   e 317 em branco (NA)
+
+table(dados_sinasc_2$ESCMAE2010, useNA = "ifany")
+# resultado: 0: 1011   1: 10834   2: 38830   3: 60984   4: 5407   5: 12237
+# 9: 497   e 933 em branco (NA)
+
+table(dados_sinasc_2$RACACORMAE, useNA = "ifany")
+# resultado: 1: 23945   2: 5329   3: 349   4: 98292   5: 952
+# e 1866 em branco (NA)
+
+table(dados_sinasc_2$TPAPRESENT, useNA = "ifany")
+# resultado: 1: 124977   2: 4800   3: 243   9: 175   e 538 em branco (NA)
+
+table(dados_sinasc_2$TPROBSON, useNA = "ifany")
+# resultado: 1: 30417   2: 13366   3: 31614   4: 7989   5: 24649   6: 1755
+# 7: 2380   8: 2303   9: 243   10: 12616   11: 3401
+# atenção: aqui o 9 é o grupo 9 de Robson, e não "ignorado"
+# quem indica falta de informação é o código 11
+
+table(dados_sinasc_2$PARIDADE, useNA = "ifany")
+# resultado: 0: 52578   1: 78155   (0: nulípara, 1: multípara)
+
+table(dados_sinasc_2$KOTELCHUCK, useNA = "ifany")
+# resultado: 1: 717   2: 31530   3: 9935   4: 11387   5: 71218   9: 5946
+# o código 9 é "não informado"
+
+# Avaliação dos valores das variáveis quantitativas
+summary(dados_sinasc_2$IDADEMAE)
+# resultado: mínimo 12 e máximo 60 anos, sem valores em branco
+# não existem valores como 99 ou 9999 para NA
+
+summary(dados_sinasc_2$SEMAGESTAC)
+# resultado: mínimo 19 e máximo 45 semanas, com 2839 NA
+# não existem valores como 99 ou 9999 para NA
+
+summary(dados_sinasc_2$APGAR5)
+# resultado: mínimo 0 e máximo 99, com 910 NA
+# o Apgar vai de 0 a 10, então o valor 99 (8 registros) é "ignorado"
+table(dados_sinasc_2$APGAR5, useNA = "ifany")
+
+summary(dados_sinasc_2$PESO)
+# resultado: mínimo 100 e máximo 6665 gramas, com 14 NA
+# não existem valores como 9999 para NA
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 4 commit com a mensagem "script BDEM - SINASC - tarefas 1 a 4" e envie para o repositório Projeto_BDEM_2016
 
 
