@@ -434,6 +434,26 @@ head(confere[, 1:8])
 # usando o comando names(dados_sinasc) = toupper(names(dados_sinasc))
 
 
+# ---------------------------------------------------------------------------
+# UF de trabalho: PERNAMBUCO (PE) - código 26
+# Leitura do banco de dados: o arquivo tem separador ";" (por isso read.csv2)
+# A leitura demora alguns minutos porque o arquivo tem cerca de 635 MB
+dados_sinasc = read.csv2("SINASC_2016.csv")
+
+# Padronização: todos os nomes das variáveis em letra maiúscula
+names(dados_sinasc) = toupper(names(dados_sinasc))
+
+# Verificando se a leitura foi feita corretamente
+dim(dados_sinasc)     # esperado: 2857800 linhas e 61 colunas
+nrow(dados_sinasc)    # 2857800
+ncol(dados_sinasc)    # 61
+
+# Verificando a estrutura dos dados
+str(dados_sinasc)
+names(dados_sinasc)
+head(dados_sinasc)
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 1 commit com a mensagem "script BDEM - SINASC - tarefa 1" e envie para o repositório Projeto_BDEM_2016
 
 # Tarefa 2. Reduzir dados_sinasc apenas para as colunas que serão utilizadas, nomeando este novo banco de dados como dados_sinasc_1
