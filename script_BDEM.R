@@ -845,6 +845,54 @@ str(dados_sinasc_2)
 # Atenção para casos de NA em SEMAGESTAC, PESO ou SEXO. Lembre-se também que em dados_sinasc_2 SEXO está como fator com as categorias Feminino e Masculino.
 
 
+# ---------------------------------------------------------------------------
+# Leitura da Tabela PIG: este arquivo é separado por vírgula, por isso read.csv
+tabela_pig = read.csv("Tabela_PIG_Brasil - Tabela_PIG_Brasil.csv")
+
+str(tabela_pig)
+head(tabela_pig)
+# a tabela tem SEMAGESTAC (de 22 a 42), SEXO, PESO_P10 e PESO_P90
+# SEXO já vem escrito como "Masculino" e "Feminino", igual às legendas da Tarefa 6
+
+# Deixando SEXO como fator com os mesmos níveis de dados_sinasc_2 para o merge
+tabela_pig$SEXO = factor(tabela_pig$SEXO, levels = c("Masculino", "Feminino"))
+
+# Agregando PESO_P10 e PESO_P90 por idade gestacional e sexo
+# all.x = TRUE mantém todos os nascimentos, inclusive os sem correspondência
+dados_sinasc_2 = merge(dados_sinasc_2, tabela_pig,
+                       by = c("SEMAGESTAC", "SEXO"),
+                       all.x = TRUE, sort = FALSE)
+
+# o merge embaralha as linhas; ordenando por CONTADOR o banco fica determinístico
+dados_sinasc_2 = dados_sinasc_2[order(dados_sinasc_2$CONTADOR), ]
+
+nrow(dados_sinasc_2)              # continua 130733
+summary(dados_sinasc_2$PESO_P10)
+summary(dados_sinasc_2$PESO_P90)
+
+# F_PIG, apenas para os casos de GRAVIDEZ Única
+# PESO_P10 e PESO_P90 saem NA quando SEMAGESTAC ou SEXO é NA e também quando
+# SEMAGESTAC está fora da faixa de 22 a 42 semanas coberta pela Tabela PIG,
+# então testar PESO_P10 já cobre as três situações de NA pedidas no roteiro
+UNICA  = dados_sinasc_2$GRAVIDEZ %in% "Única"
+VALIDO = UNICA & !is.na(dados_sinasc_2$PESO) & !is.na(dados_sinasc_2$PESO_P10)
+
+dados_sinasc_2$F_PIG = factor(
+  ifelse(!VALIDO, NA,
+  ifelse(dados_sinasc_2$PESO <  dados_sinasc_2$PESO_P10, "PIG",
+  ifelse(dados_sinasc_2$PESO <= dados_sinasc_2$PESO_P90, "AIG", "GIG"))),
+  levels = c("PIG", "AIG", "GIG"))
+
+# Conferindo a variável criada
+table(dados_sinasc_2$F_PIG, useNA = "ifany")
+# resultado: PIG: 8083   AIG: 100557   GIG: 14952   NA: 7141
+# os NA são as 2524 gestações não únicas mais 4617 gestações únicas sem
+# PESO, SEXO ou SEMAGESTAC válidos para a Tabela PIG
+
+class(dados_sinasc_2$F_PIG)       # "factor"
+str(dados_sinasc_2)
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 8 commit com a mensagem "script BDEM - SINASC - tarefas 1 a 8" e envie para o repositório Projeto_BDEM_2016
 
 
