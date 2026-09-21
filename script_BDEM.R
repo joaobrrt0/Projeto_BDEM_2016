@@ -900,6 +900,279 @@ str(dados_sinasc_2)
 # Atenção: a ordem das variáveis do arquivo deve ser respeitada
 
 
+# ---------------------------------------------------------------------------
+# O banco tem 1 linha da UF (CODMUNRES = 26) seguida de 1 linha por município
+
+# --- Municípios e fator usado nas agregações -------------------------------
+MUN  = sort(unique(dados_sinasc_2$CODMUNRES))
+FMUN = factor(dados_sinasc_2$CODMUNRES, levels = MUN)
+
+# --- Registros completos ---------------------------------------------------
+# TNRC precisa das 61 variáveis, então usa dados_sinasc (e não dados_sinasc_2)
+dados_sinasc_61 = dados_sinasc[which(substr(dados_sinasc$CODMUNRES, 1, 2) == "26"), ]
+
+# campos em branco também contam como "não informado"
+for (v in names(dados_sinasc_61)) {
+  dados_sinasc_61[[v]][dados_sinasc_61[[v]] %in% ""] = NA
+}
+
+# ordenando por CONTADOR para as linhas ficarem alinhadas com dados_sinasc_2
+dados_sinasc_61 = dados_sinasc_61[order(dados_sinasc_61$CONTADOR), ]
+identical(dados_sinasc_61$CONTADOR, dados_sinasc_2$CONTADOR)   # deve ser TRUE
+
+COMPLETO_61 = complete.cases(dados_sinasc_61)
+COMPLETO_21 = complete.cases(dados_sinasc_2[, names(dados_sinasc_1)])
+
+sum(COMPLETO_61)   # resultado: 0 (ver observação no fim da Tarefa 9)
+sum(COMPLETO_21)   # resultado: 118373
+
+# --- Indicadores de contagem, um por variável do arquivo da Tarefa 9 -------
+IND = data.frame(
+  TN        = rep(TRUE, nrow(dados_sinasc_2)),                  #  4
+  TNRC      = COMPLETO_61,                                      #  5
+  TNRCR     = COMPLETO_21,                                      #  6
+  TGI_15    = dados_sinasc_2$F_IDADE %in% "<15",                #  7
+  TGI_15_19 = dados_sinasc_2$F_IDADE %in% "15-19",              #  8
+  TGI_20_24 = dados_sinasc_2$F_IDADE %in% "20-24",              #  9
+  TGI_25_29 = dados_sinasc_2$F_IDADE %in% "25-29",              # 10
+  TGI_30_34 = dados_sinasc_2$F_IDADE %in% "30-34",              # 11
+  TGI_35_39 = dados_sinasc_2$F_IDADE %in% "35-39",              # 12
+  TGI_40_44 = dados_sinasc_2$F_IDADE %in% "40-44",              # 13
+  TGI_45_49 = dados_sinasc_2$F_IDADE %in% "45-49",              # 14
+  TGI_50    = dados_sinasc_2$F_IDADE %in% "50+",                # 15
+  TGIF      = !is.na(dados_sinasc_2$IDADEMAE) &
+              dados_sinasc_2$IDADEMAE >= 15 &
+              dados_sinasc_2$IDADEMAE <= 49,                    # 16
+  EM_S      = dados_sinasc_2$ESCMAE2010 %in% "Sem escolaridade",     # 22
+  EM_FI     = dados_sinasc_2$ESCMAE2010 %in% "Fundamental I",        # 23
+  EM_FII    = dados_sinasc_2$ESCMAE2010 %in% "Fundamental II",       # 24
+  EM_M      = dados_sinasc_2$ESCMAE2010 %in% "Médio",                # 25
+  EM_SI     = dados_sinasc_2$ESCMAE2010 %in% "Superior incompleto",  # 26
+  EM_SC     = dados_sinasc_2$ESCMAE2010 %in% "Superior completo",    # 27
+  TGRC_B    = dados_sinasc_2$RACACORMAE %in% "Branca",          # 28
+  TGRC_PT   = dados_sinasc_2$RACACORMAE %in% "Preta",           # 29
+  TGRC_A    = dados_sinasc_2$RACACORMAE %in% "Amarela",         # 30
+  TGRC_PD   = dados_sinasc_2$RACACORMAE %in% "Parda",           # 31
+  TGRC_I    = dados_sinasc_2$RACACORMAE %in% "Indígena",        # 32
+  TGSC      = dados_sinasc_2$ESTCIV %in% "Sem companheiro",     # 33
+  TGCC      = dados_sinasc_2$ESTCIV %in% "Com companheiro",     # 34
+  TGPRI     = dados_sinasc_2$PARIDADE %in% "Nulípara",          # 35 primípara
+  TGNPRI    = dados_sinasc_2$PARIDADE %in% "Multípara",         # 36 não primípara
+  TGU       = dados_sinasc_2$GRAVIDEZ %in% "Única",             # 37
+  TGG       = dados_sinasc_2$GRAVIDEZ %in% c("Dupla",
+                                             "Tripla ou mais"), # 38
+  TGD_22    = dados_sinasc_2$GESTACAO %in% "Menos de 22 semanas",  # 39
+  TGD_22_27 = dados_sinasc_2$GESTACAO %in% "22 a 27 semanas",      # 40
+  TGD_28_31 = dados_sinasc_2$GESTACAO %in% "28 a 31 semanas",      # 41
+  TGD_32_36 = dados_sinasc_2$GESTACAO %in% "32 a 36 semanas",      # 42
+  TGD_37_41 = dados_sinasc_2$GESTACAO %in% "37 a 41 semanas",      # 43
+  TGD_42    = dados_sinasc_2$GESTACAO %in% "42 semanas e mais",    # 44
+  TGD_PRT   = dados_sinasc_2$GESTACAO %in% c("Menos de 22 semanas",
+                                             "22 a 27 semanas",
+                                             "28 a 31 semanas",
+                                             "32 a 36 semanas"),   # 45 pré-termo
+  TGD_AT    = dados_sinasc_2$GESTACAO %in% "37 a 41 semanas",      # 46 a termo
+  TGD_PST   = dados_sinasc_2$GESTACAO %in% "42 semanas e mais",    # 47 pós-termo
+  TKC_NR    = dados_sinasc_2$KOTELCHUCK %in% "Não realizou pré-natal", # 53
+  TKC_ID    = dados_sinasc_2$KOTELCHUCK %in% "Inadequado",        # 54
+  TKC_IT    = dados_sinasc_2$KOTELCHUCK %in% "Intermediário",     # 55
+  TKC_AD    = dados_sinasc_2$KOTELCHUCK %in% "Adequado",          # 56
+  TKC_MAD   = dados_sinasc_2$KOTELCHUCK %in% "Mais que adequado", # 57
+  TGPRG_S   = dados_sinasc_2$PEREG %in% "Sim",                  # 58
+  TGPRG_N   = dados_sinasc_2$PEREG %in% "Não",                  # 59
+  TPV       = dados_sinasc_2$PARTO %in% "Vaginal",              # 60
+  TPC       = dados_sinasc_2$PARTO %in% "Cesário",              # 61
+  TRAP_C    = dados_sinasc_2$TPAPRESENT %in% "Cefálico",            # 62
+  TRAP_P    = dados_sinasc_2$TPAPRESENT %in% "Pélvica ou podálica", # 63
+  TRAP_T    = dados_sinasc_2$TPAPRESENT %in% "Transversa",          # 64
+  TGROB_1   = dados_sinasc_2$TPROBSON %in% "Grupo 1",           # 65
+  TGROB_2   = dados_sinasc_2$TPROBSON %in% "Grupo 2",           # 66
+  TGROB_3   = dados_sinasc_2$TPROBSON %in% "Grupo 3",           # 67
+  TGROB_4   = dados_sinasc_2$TPROBSON %in% "Grupo 4",           # 68
+  TGROB_5   = dados_sinasc_2$TPROBSON %in% "Grupo 5",           # 69
+  TGROB_6   = dados_sinasc_2$TPROBSON %in% "Grupo 6",           # 70
+  TGROB_7   = dados_sinasc_2$TPROBSON %in% "Grupo 7",           # 71
+  TGROB_8   = dados_sinasc_2$TPROBSON %in% "Grupo 8",           # 72
+  TGROB_9   = dados_sinasc_2$TPROBSON %in% "Grupo 9",           # 73
+  TGROB_10  = dados_sinasc_2$TPROBSON %in% "Grupo 10",          # 74
+  TNLOC_H   = dados_sinasc_2$LOCNASC %in% "Hospital",                         # 75
+  TNLOC_ES  = dados_sinasc_2$LOCNASC %in% "Outros estabelecimentos de saúde", # 76
+  TNLOC_D   = dados_sinasc_2$LOCNASC %in% "Domicílio",                        # 77
+  TNLOC_O   = dados_sinasc_2$LOCNASC %in% "Outros",                           # 78
+  TNLOC_AI  = dados_sinasc_2$LOCNASC %in% "Aldeia indígena",                  # 79
+  TRS_M     = dados_sinasc_2$SEXO %in% "Masculino",             # 80
+  TRS_F     = dados_sinasc_2$SEXO %in% "Feminino",              # 81
+  TRRC_B    = dados_sinasc_2$RACACOR %in% "Branca",             # 82
+  TRRC_PT   = dados_sinasc_2$RACACOR %in% "Preta",              # 83
+  TRRC_A    = dados_sinasc_2$RACACOR %in% "Amarela",            # 84
+  TRRC_PD   = dados_sinasc_2$RACACOR %in% "Parda",              # 85
+  TRRC_I    = dados_sinasc_2$RACACOR %in% "Indígena",           # 86
+  TRP_BP    = dados_sinasc_2$F_PESO %in% "Baixo peso",          # 87
+  TRP_N     = dados_sinasc_2$F_PESO %in% "Peso normal",         # 88
+  TRP_M     = dados_sinasc_2$F_PESO %in% "Macrossomia",         # 89
+  TRPIG_P   = dados_sinasc_2$F_PIG %in% "PIG",                  # 95
+  TRPIG_A   = dados_sinasc_2$F_PIG %in% "AIG",                  # 96
+  TRPIG_G   = dados_sinasc_2$F_PIG %in% "GIG",                  # 97
+  TRAPG5_B  = dados_sinasc_2$F_APGAR5 %in% "Baixo",             # 98
+  TRAPG5_N  = dados_sinasc_2$F_APGAR5 %in% "Normal",            # 99
+  TRAC      = dados_sinasc_2$IDANOMAL %in% "Sim",               # 102
+  TRSAC     = dados_sinasc_2$IDANOMAL %in% "Não"                # 103
+)
+
+# --- Funções para as medidas de posição e de dispersão ---------------------
+# todas calculadas sem considerar os NA
+p25 = function(x) as.numeric(quantile(x, 0.25, na.rm = TRUE))
+p50 = function(x) as.numeric(quantile(x, 0.50, na.rm = TRUE))
+p75 = function(x) as.numeric(quantile(x, 0.75, na.rm = TRUE))
+md  = function(x) mean(x, na.rm = TRUE)
+dp  = function(x) sd(x, na.rm = TRUE)
+
+# --- Linha da UF (CODMUNRES = 26) ------------------------------------------
+linha_uf = data.frame(
+  ANO = 2016, NIVEL = "UF", CODMUNRES = 26,
+  t(colSums(IND)),
+  IM_P25   = p25(dados_sinasc_2$IDADEMAE),    # 17
+  IM_P50   = p50(dados_sinasc_2$IDADEMAE),    # 18
+  IM_P75   = p75(dados_sinasc_2$IDADEMAE),    # 19
+  IM_MD    = md(dados_sinasc_2$IDADEMAE),     # 20
+  IM_DP    = dp(dados_sinasc_2$IDADEMAE),     # 21
+  DG_P25   = p25(dados_sinasc_2$SEMAGESTAC),  # 48
+  DG_P50   = p50(dados_sinasc_2$SEMAGESTAC),  # 49
+  DG_P75   = p75(dados_sinasc_2$SEMAGESTAC),  # 50
+  DG_MD    = md(dados_sinasc_2$SEMAGESTAC),   # 51
+  DG_DP    = dp(dados_sinasc_2$SEMAGESTAC),   # 52
+  PESO_P25 = p25(dados_sinasc_2$PESO),        # 90
+  PESO_P50 = p50(dados_sinasc_2$PESO),        # 91
+  PESO_P75 = p75(dados_sinasc_2$PESO),        # 92
+  PESO_MD  = md(dados_sinasc_2$PESO),         # 93
+  PESO_DP  = dp(dados_sinasc_2$PESO),         # 94
+  APG5_MD  = md(dados_sinasc_2$APGAR5),       # 100
+  APG5_DP  = dp(dados_sinasc_2$APGAR5)        # 101
+)
+
+# --- Linhas dos municípios --------------------------------------------------
+linhas_municipio = data.frame(ANO = 2016, NIVEL = "MUNICIPIO", CODMUNRES = MUN)
+
+for (v in names(IND)) {
+  linhas_municipio[[v]] = as.vector(tapply(IND[[v]], FMUN, sum))
+}
+
+est_mun = function(x, f) as.vector(tapply(x, FMUN, f))
+
+linhas_municipio$IM_P25   = est_mun(dados_sinasc_2$IDADEMAE, p25)
+linhas_municipio$IM_P50   = est_mun(dados_sinasc_2$IDADEMAE, p50)
+linhas_municipio$IM_P75   = est_mun(dados_sinasc_2$IDADEMAE, p75)
+linhas_municipio$IM_MD    = est_mun(dados_sinasc_2$IDADEMAE, md)
+linhas_municipio$IM_DP    = est_mun(dados_sinasc_2$IDADEMAE, dp)
+linhas_municipio$DG_P25   = est_mun(dados_sinasc_2$SEMAGESTAC, p25)
+linhas_municipio$DG_P50   = est_mun(dados_sinasc_2$SEMAGESTAC, p50)
+linhas_municipio$DG_P75   = est_mun(dados_sinasc_2$SEMAGESTAC, p75)
+linhas_municipio$DG_MD    = est_mun(dados_sinasc_2$SEMAGESTAC, md)
+linhas_municipio$DG_DP    = est_mun(dados_sinasc_2$SEMAGESTAC, dp)
+linhas_municipio$PESO_P25 = est_mun(dados_sinasc_2$PESO, p25)
+linhas_municipio$PESO_P50 = est_mun(dados_sinasc_2$PESO, p50)
+linhas_municipio$PESO_P75 = est_mun(dados_sinasc_2$PESO, p75)
+linhas_municipio$PESO_MD  = est_mun(dados_sinasc_2$PESO, md)
+linhas_municipio$PESO_DP  = est_mun(dados_sinasc_2$PESO, dp)
+linhas_municipio$APG5_MD  = est_mun(dados_sinasc_2$APGAR5, md)
+linhas_municipio$APG5_DP  = est_mun(dados_sinasc_2$APGAR5, dp)
+
+# --- Banco final, com a UF na 1a linha e as colunas na ordem do arquivo ----
+SINASC_PE = rbind(linha_uf, linhas_municipio)
+
+ORDEM = c("ANO", "NIVEL", "CODMUNRES",
+          "TN", "TNRC", "TNRCR",
+          "TGI_15", "TGI_15_19", "TGI_20_24", "TGI_25_29", "TGI_30_34",
+          "TGI_35_39", "TGI_40_44", "TGI_45_49", "TGI_50", "TGIF",
+          "IM_P25", "IM_P50", "IM_P75", "IM_MD", "IM_DP",
+          "EM_S", "EM_FI", "EM_FII", "EM_M", "EM_SI", "EM_SC",
+          "TGRC_B", "TGRC_PT", "TGRC_A", "TGRC_PD", "TGRC_I",
+          "TGSC", "TGCC", "TGPRI", "TGNPRI",
+          "TGU", "TGG",
+          "TGD_22", "TGD_22_27", "TGD_28_31", "TGD_32_36", "TGD_37_41",
+          "TGD_42", "TGD_PRT", "TGD_AT", "TGD_PST",
+          "DG_P25", "DG_P50", "DG_P75", "DG_MD", "DG_DP",
+          "TKC_NR", "TKC_ID", "TKC_IT", "TKC_AD", "TKC_MAD",
+          "TGPRG_S", "TGPRG_N", "TPV", "TPC",
+          "TRAP_C", "TRAP_P", "TRAP_T",
+          "TGROB_1", "TGROB_2", "TGROB_3", "TGROB_4", "TGROB_5",
+          "TGROB_6", "TGROB_7", "TGROB_8", "TGROB_9", "TGROB_10",
+          "TNLOC_H", "TNLOC_ES", "TNLOC_D", "TNLOC_O", "TNLOC_AI",
+          "TRS_M", "TRS_F",
+          "TRRC_B", "TRRC_PT", "TRRC_A", "TRRC_PD", "TRRC_I",
+          "TRP_BP", "TRP_N", "TRP_M",
+          "PESO_P25", "PESO_P50", "PESO_P75", "PESO_MD", "PESO_DP",
+          "TRPIG_P", "TRPIG_A", "TRPIG_G",
+          "TRAPG5_B", "TRAPG5_N",
+          "APG5_MD", "APG5_DP",
+          "TRAC", "TRSAC")
+
+length(ORDEM)                          # 103 variáveis
+setdiff(ORDEM, names(SINASC_PE))       # deve ser character(0)
+setdiff(names(SINASC_PE), ORDEM)       # deve ser character(0)
+
+SINASC_PE = SINASC_PE[, ORDEM]
+
+# Conferindo o banco criado
+dim(SINASC_PE)     # 187 linhas (1 UF + 186 municípios) e 103 colunas
+names(SINASC_PE)
+str(SINASC_PE)
+head(SINASC_PE[, 1:8])
+
+# Conferindo se a linha da UF é igual à soma dos municípios
+SINASC_PE$TN[1] == sum(SINASC_PE$TN[-1])    # deve ser TRUE
+
+# Resultados obtidos para a linha da UF (26 - PE):
+# TN 130733          TNRC 0             TNRCR 118373
+# TGI_15 1298        TGI_15_19 25751    TGI_20_24 35486    TGI_25_29 30788
+# TGI_30_34 22944    TGI_35_39 11370    TGI_40_44 2924     TGI_45_49 159
+# TGI_50 13          TGIF 129422
+# IM_P25 20          IM_P50 25          IM_P75 30          IM_MD 25.62
+# IM_DP 6.62
+# EM_S 1011          EM_FI 10834        EM_FII 38830       EM_M 60984
+# EM_SI 5407         EM_SC 12237
+# TGRC_B 23945       TGRC_PT 5329       TGRC_A 349         TGRC_PD 98292
+# TGRC_I 952
+# TGSC 57273         TGCC 72390         TGPRI 52578        TGNPRI 78155
+# TGU 128209         TGG 2348
+# TGD_22 81          TGD_22_27 660      TGD_28_31 1336     TGD_32_36 12812
+# TGD_37_41 108319   TGD_42 4691        TGD_PRT 14889      TGD_AT 108319
+# TGD_PST 4691
+# DG_P25 38          DG_P50 39          DG_P75 40          DG_MD 38.51
+# DG_DP 2.30
+# TKC_NR 717         TKC_ID 31530       TKC_IT 9935        TKC_AD 11387
+# TKC_MAD 71218
+# TGPRG_S 68895      TGPRG_N 61838      TPV 64911          TPC 65679
+# TRAP_C 124977      TRAP_P 4800        TRAP_T 243
+# TGROB_1 30417      TGROB_2 13366      TGROB_3 31614      TGROB_4 7989
+# TGROB_5 24649      TGROB_6 1755       TGROB_7 2380       TGROB_8 2303
+# TGROB_9 243        TGROB_10 12616
+# TNLOC_H 129893     TNLOC_ES 272       TNLOC_D 376        TNLOC_O 189
+# TNLOC_AI 0
+# TRS_M 66785        TRS_F 63923
+# TRRC_B 23971       TRRC_PT 5330       TRRC_A 349         TRRC_PD 98445
+# TRRC_I 953
+# TRP_BP 10204       TRP_N 112988       TRP_M 7527
+# PESO_P25 2930      PESO_P50 3245      PESO_P75 3550      PESO_MD 3212.28
+# PESO_DP 560.29
+# TRPIG_P 8083       TRPIG_A 100557     TRPIG_G 14952
+# TRAPG5_B 1575      TRAPG5_N 128240    APG5_MD 9.45       APG5_DP 0.92
+# TRAC 1517          TRSAC 128679
+
+# OBSERVAÇÕES:
+# 1. TNRC dá 0 em todos os municípios. Não é erro do script: a variável
+#    DTRECORIGA está vazia em TODOS os registros do arquivo do SINASC, logo
+#    nenhum nascimento pode ter registro completo nas 61 variáveis.
+# 2. O arquivo da Tarefa 9 fala em "22 variáveis selecionadas do SINASC" para
+#    o TNRCR, mas a Tarefa 2 do roteiro seleciona 21 colunas. Aqui foram usadas
+#    as 21 variáveis de dados_sinasc_1.
+# 3. TGPRI usa PARIDADE igual a Nulípara: no SINASC, nulípara é a mãe que ainda
+#    não tinha tido parto, ou seja, é justamente a primípara deste nascimento.
+# 4. PE tem 185 municípios, mas aparecem 186 códigos: o código 260000
+#    ("município ignorado") foi mantido para que a soma dos municípios continue
+#    batendo com o total da UF.
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 9 commit com a mensagem "script BDEM - SINASC - tarefas 1 a 9" e envie para o repositório Projeto_BDEM_2016
 
 
