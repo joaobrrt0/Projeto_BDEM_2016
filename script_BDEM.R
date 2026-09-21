@@ -1177,6 +1177,17 @@ SINASC_PE$TN[1] == sum(SINASC_PE$TN[-1])    # deve ser TRUE
 
 
 # Tarefa 10. Exportar o banco de dados com o nome SINASC_UF.csv (Exemplo: SINASC_RJ.csv)
+# ---------------------------------------------------------------------------
+# Exportação usando ";" como separador, igual aos arquivos lidos com read.csv2
+write.csv2(SINASC_PE, "SINASC_PE.csv", row.names = FALSE)
+
+# Conferindo o arquivo exportado
+file.exists("SINASC_PE.csv")
+confere = read.csv2("SINASC_PE.csv")
+dim(confere)        # 187 linhas e 103 colunas
+head(confere[, 1:8])
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 10 commit com o comentário "dados SINASC_UF 2016 e script - SIM - tarefas 1 a 10"  e envie para o repositório Projeto_BDEM_2016
 
 
