@@ -410,6 +410,42 @@ str(dados_bd3)
 # POPHF: população total feminina de habilitadas
 # POPHM: população total masculina de habilitadas
 
+# ---------------------------------------------------------------------------
+# NIVEL: a linha com código de 2 dígitos é a UF; as de 7 dígitos são municípios
+BANCO3_RJ = data.frame(
+  ANO    = 2025,
+  NIVEL  = ifelse(nchar(as.character(dados_bd3$MUNICIPIO)) == 7,
+                  "MUNICIPIO", "UF"),
+  CODIGO = dados_bd3$MUNICIPIOS,
+  POPH   = dados_bd3$HABILITADOS_GERAL_2025,
+  POPHF  = dados_bd3$POP_FEM_HABILITADA_2020,
+  POPHM  = dados_bd3$POP_MASC_HABILITADA_2020
+)
+
+# Garantindo que a 1a linha do banco seja a da UF 33
+BANCO3_RJ = rbind(BANCO3_RJ[BANCO3_RJ$NIVEL == "UF", ],
+                  BANCO3_RJ[BANCO3_RJ$NIVEL == "MUNICIPIO", ])
+row.names(BANCO3_RJ) = NULL
+
+# Conferindo o banco criado
+dim(BANCO3_RJ)     # 13 linhas e 6 colunas
+str(BANCO3_RJ)
+BANCO3_RJ
+
+table(BANCO3_RJ$NIVEL)   # MUNICIPIO: 12   UF: 1
+
+# Conferindo se a linha da UF é igual à soma das linhas dos municípios
+BANCO3_RJ$POPH[1]  == sum(BANCO3_RJ$POPH[-1])    # TRUE  (6587300)
+BANCO3_RJ$POPHF[1] == sum(BANCO3_RJ$POPHF[-1])   # TRUE  (2787000)
+BANCO3_RJ$POPHM[1] == sum(BANCO3_RJ$POPHM[-1])   # TRUE  (3275500)
+
+# Conferindo se homens mais mulheres dá o total de habilitados
+all(BANCO3_RJ$POPHF + BANCO3_RJ$POPHM == BANCO3_RJ$POPH)
+# resultado: FALSE
+# não é erro do script: HABILITADOS_GERAL é de 2025 e os dois recortes por sexo
+# são de 2020, então os totais não fecham linha a linha
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 3 commit com a mensagem " script - tarefa 1 a 3" e envie para o repositório Treino_Extensao
 
 
