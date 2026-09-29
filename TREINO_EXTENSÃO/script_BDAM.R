@@ -380,6 +380,24 @@ sum(is.na(dados_bd3))   # 0: não há valores faltantes
 # Tarefa 2: Manipulação dos dados
 # Criar a variável MUNICIPIOS = MUNICIPIO em dados_bd3, sendo que agora com 6 dígitos (em vez de 7 dígitos), desprezando o último dígito verificador
 
+# ---------------------------------------------------------------------------
+# MUNICIPIO tem 7 dígitos nos municípios, sendo o último o dígito verificador
+# A 1a linha é a UF (código 33, com 2 dígitos), que não tem dígito verificador,
+# por isso o ifelse: só os códigos de 7 dígitos perdem o último algarismo
+dados_bd3$MUNICIPIOS = ifelse(nchar(as.character(dados_bd3$MUNICIPIO)) == 7,
+                              dados_bd3$MUNICIPIO %/% 10,
+                              dados_bd3$MUNICIPIO)
+
+# Conferindo a variável criada
+dados_bd3[, c("MUNICIPIO", "MUNICIPIOS")]
+# 33 continua 33; 3304557 vira 330455; 3303302 vira 330330; e assim por diante
+
+table(nchar(as.character(dados_bd3$MUNICIPIOS)))
+# resultado: 2 dígitos: 1 linha (a UF) e 6 dígitos: 12 linhas (os municípios)
+
+str(dados_bd3)
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 2 commit com a mensagem " script - tarefa 1 a 2" e envie para o repositório Treino_Extensao
 
 
