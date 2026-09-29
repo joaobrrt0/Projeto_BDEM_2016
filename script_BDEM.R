@@ -1427,6 +1427,19 @@ SIDRA_PE$POPRC_M + SIDRA_PE$POPRC_F == SIDRA_PE$POPRC_T
 
 
 # Tarefa 5:Exportar o banco de dados com o nome SIDRA_UF.csv (Exemplo: SIDRA_RJ.csv)
+# ---------------------------------------------------------------------------
+# Exportação com ";" como separador, igual ao SIM_PE.csv e ao SINASC_PE.csv,
+# para os cinco bancos da ETAPA 6 ficarem no mesmo formato
+write.csv2(SIDRA_PE, "SIDRA_PE.csv", row.names = FALSE)
+
+# Conferindo o arquivo exportado
+file.exists("SIDRA_PE.csv")
+confere = read.csv2("SIDRA_PE.csv")
+dim(confere)      # 186 linhas e 13 colunas
+names(confere)
+head(confere[, 1:7])
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 5 commit com o comentário "dados SIDRA_UF 2016 e script - SIDRA - tarefas 1 a 5"  e envie para o repositório Projeto_BDEM_2016
 
 
