@@ -1298,6 +1298,33 @@ str(dados_sidra_1)
 # e chamar os bancos de dados, respectivamente por sidra_1, sidra_2, sidra_3 e sidra_4
 
 
+# ---------------------------------------------------------------------------
+# A UF de trabalho é PERNAMBUCO, cujo código é 26
+sidra_1 = dados_sidra_1[which(dados_sidra_1$CODUF == 26), ]
+sidra_2 = dados_sidra_2[which(dados_sidra_2$CODUF == 26), ]
+sidra_3 = dados_sidra_3[which(dados_sidra_3$CODMUNRES == 26), ]
+sidra_4 = dados_sidra_4[which(dados_sidra_4$CODUF == 26), ]
+
+# Conferindo o tamanho de cada banco
+nrow(sidra_1)   # 186: a linha da UF mais 185 municípios
+nrow(sidra_2)   # 186: a linha da UF mais 185 municípios
+nrow(sidra_3)   # 19: uma linha por faixa etária da UF
+nrow(sidra_4)   # 3515: 185 municípios x 19 faixas etárias
+
+# Conferindo que sobrou apenas PE
+table(substr(sidra_1$CODMUNRES, 1, 2))
+length(unique(sidra_4$CODMUNRES))   # 185 municípios
+
+# Os mesmos 185 municípios aparecem nos três bancos
+mun_1 = sidra_1$CODMUNRES[nchar(as.character(sidra_1$CODMUNRES)) == 7]
+mun_2 = sidra_2$CODMUNRES[nchar(as.character(sidra_2$CODMUNRES)) == 7]
+setdiff(mun_1, mun_2)                      # deve ser vazio
+setdiff(mun_1, unique(sidra_4$CODMUNRES))  # deve ser vazio
+
+str(sidra_1)
+str(sidra_3)
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 3 commit com a mensagem "script BDEM - SIDRA - tarefas 1 a 3" e envie para o repositório Projeto_BDEM_2016
 
 
