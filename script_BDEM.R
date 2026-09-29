@@ -1208,6 +1208,64 @@ head(confere[, 1:8])
 # Verificar se a leitura de todos os bancos foi feita corretamente e a estrutura dos dados
 
 
+# ---------------------------------------------------------------------------
+# UF de trabalho: PERNAMBUCO (PE) - código 26
+# Os quatro arquivos são separados por vírgula, por isso read.csv
+# Os nomes são muito longos, então ficam guardados em variáveis antes da leitura
+arq_1 = paste0("população residente estimada - UF e municípios - 2016 - SIDRA",
+               " - tabela_6579 - população residente estimada - UF e municípios",
+               " - 2016 - SIDRA - tabela_6579.csv")
+arq_2 = paste0("população residente censo 2010 - UF e municípios - total e por",
+               " sexo - SIDRA - tabela_1552 - população residente censo 2010 -",
+               " UF e municípios - total e por sexo - SIDRA - tabela_1552.csv")
+arq_3 = paste0("população residente censo 2010 - por faixa etária - UF - SIDRA",
+               " - tabela_1552 - população residente censo 2010 - por faixa",
+               " etária - UF - SIDRA - tabela_1552.csv")
+arq_4 = paste0("população residente censo 2010 - por faixa etária e sexo -",
+               " municípios - SIDRA - tabela_1552 - população residente censo",
+               " 2010 - por faixa etária e sexo - municípios - SIDRA -",
+               " tabela_1552.csv")
+
+file.exists(arq_1, arq_2, arq_3, arq_4)   # os quatro devem ser TRUE
+
+dados_sidra_1 = read.csv(arq_1)   # população residente estimada 2016
+dados_sidra_2 = read.csv(arq_2)   # censo 2010, total e por sexo
+dados_sidra_3 = read.csv(arq_3)   # censo 2010, por faixa etária, UF
+dados_sidra_4 = read.csv(arq_4)   # censo 2010, por faixa etária e sexo, municípios
+
+# Verificando se a leitura foi feita corretamente
+dim(dados_sidra_1)   # 5597 linhas e 3 colunas
+dim(dados_sidra_2)   # 5591 linhas e 5 colunas
+dim(dados_sidra_3)   # 513 linhas e 6 colunas (27 UF x 19 faixas etárias)
+dim(dados_sidra_4)   # 105734 linhas e 5 colunas
+
+# Verificando a estrutura dos dados
+str(dados_sidra_1)
+str(dados_sidra_2)
+str(dados_sidra_3)
+str(dados_sidra_4)
+
+names(dados_sidra_1)   # "CODMUNRES" "NOME" "POPRE_T"
+names(dados_sidra_2)   # "CODMUNRES" "NOME" "POPRC_T" "POPRC_M" "POPRC_F"
+names(dados_sidra_3)   # "CODMUNRES" "ESTADO" "F_IDADE" "POP" "POPM" "POPF"
+names(dados_sidra_4)   # "CODMUNRES" "F_IDADE" "POP" "POPM" "POPF"
+
+head(dados_sidra_1)
+head(dados_sidra_2)
+head(dados_sidra_3)
+head(dados_sidra_4)
+
+# Atenção: nos bancos 1, 2 e 4 o CODMUNRES tem 7 dígitos nos municípios e
+# 2 dígitos nas linhas de UF; no banco 3 o CODMUNRES já é o código da UF
+table(nchar(as.character(dados_sidra_1$CODMUNRES)))   # 2: 27 UF e 7: 5570 municípios
+table(nchar(as.character(dados_sidra_3$CODMUNRES)))   # só 2 dígitos
+
+# As 19 faixas etárias são as mesmas nos bancos 3 e 4
+identical(sort(unique(dados_sidra_3$F_IDADE)),
+          sort(unique(dados_sidra_4$F_IDADE)))        # deve ser TRUE
+unique(dados_sidra_3$F_IDADE)
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 1 commit com a mensagem "script BDEM - SIDRA - tarefa 1" e envie para o repositório Projeto_BDEM_2016
 
 
