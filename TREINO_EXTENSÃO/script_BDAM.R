@@ -354,6 +354,26 @@ all.equal(confere, BANCO2_RJ)   # deve ser TRUE
 # Tarefa 1: Leitura do banco de dados banco 3 = SIDRA.csv com o nome de dados_bd3
 # Ler o arquivo, verificar estrutura dos dados e dar uma olhada nos dados
 
+# ---------------------------------------------------------------------------
+# Leitura do banco de dados: este arquivo é separado por vírgula, por isso read.csv
+dados_bd3 = read.csv("banco 3 = SIDRA - banco 3 = SIDRA.csv")
+
+# Verificando a estrutura dos dados
+dim(dados_bd3)     # 13 linhas e 4 colunas
+str(dados_bd3)
+names(dados_bd3)
+# "MUNICIPIO" "HABILITADOS_GERAL_2025" "POP_FEM_HABILITADA_2020" "POP_MASC_HABILITADA_2020"
+
+# Dando uma olhada nos dados
+head(dados_bd3)
+dados_bd3
+# a 1a linha é a UF (código 33, com 2 dígitos) e as outras 12 são municípios
+# do RJ, com código de 7 dígitos
+
+summary(dados_bd3)
+sum(is.na(dados_bd3))   # 0: não há valores faltantes
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 1 commit com a mensagem " script - tarefa 1" e envie para o repositório Treino_Extensao
 
 
