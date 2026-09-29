@@ -451,6 +451,21 @@ all(BANCO3_RJ$POPHF + BANCO3_RJ$POPHM == BANCO3_RJ$POPH)
 
 # Tarefa 4: Exportar o banco de dados BANCO3_RJ com o nome BANCO3_RJ.csv
 
+# ---------------------------------------------------------------------------
+# Exportação usando "," como separador, igual ao arquivo lido com read.csv
+write.csv(BANCO3_RJ, "BANCO3_RJ.csv", row.names = FALSE)
+
+# Conferindo o arquivo exportado
+file.exists("BANCO3_RJ.csv")
+confere = read.csv("BANCO3_RJ.csv")
+dim(confere)      # 13 linhas e 6 colunas
+names(confere)
+confere
+
+# O banco lido de volta deve ser igual ao que foi exportado
+all.equal(confere, BANCO3_RJ)   # deve ser TRUE
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 4 commit com a mensagem "dados e script - Etapa 3" e envie para o repositório Treino_Extensao
 
 
