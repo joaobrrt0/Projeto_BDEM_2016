@@ -1330,6 +1330,99 @@ str(sidra_3)
 
 # Tarefa 4: Criar um banco de dados, de nome SIDRA_UF.csv (Exemplo: SIDRA_RJ.csv), contendo as variáveis listadas no arquivo “Variáveis - Projeto - Tarefa 4 - SIDRA.pdf”
 
+# ---------------------------------------------------------------------------
+# As faixas etárias do censo precisam ser agrupadas em 3 grupos
+MENOS15 = c("0 a 4 anos", "5 a 9 anos", "10 a 14 anos")
+DE15A49 = c("15 a 19 anos", "20 a 24 anos", "25 a 29 anos", "30 a 34 anos",
+            "35 a 39 anos", "40 a 44 anos", "45 a 49 anos")
+# todas as demais faixas (de "50 a 54 anos" até "100 anos ou mais") são 50+
+
+grupo_idade = function(f) {
+  ifelse(f %in% MENOS15, "POPRC_15",
+  ifelse(f %in% DE15A49, "POPRC_15_49", "POPRC_50"))
+}
+
+# --- Grupos etários da UF, a partir de sidra_3 -----------------------------
+G3      = grupo_idade(sidra_3$F_IDADE)
+uf_pop  = tapply(sidra_3$POP,  G3, sum)
+uf_popf = tapply(sidra_3$POPF, G3, sum)
+
+# --- Grupos etários dos municípios, a partir de sidra_4 --------------------
+G4       = grupo_idade(sidra_4$F_IDADE)
+mun_pop  = tapply(sidra_4$POP,  list(sidra_4$CODMUNRES, G4), sum)
+mun_popf = tapply(sidra_4$POPF, list(sidra_4$CODMUNRES, G4), sum)
+
+idade_mun = data.frame(
+  CODMUNRES     = as.numeric(rownames(mun_pop)),
+  POPRC_15      = mun_pop[,  "POPRC_15"],
+  POPRC_15_49   = mun_pop[,  "POPRC_15_49"],
+  POPRC_50      = mun_pop[,  "POPRC_50"],
+  POPRC_F_15    = mun_popf[, "POPRC_15"],
+  POPRC_F_15_49 = mun_popf[, "POPRC_15_49"],
+  POPRC_F_50    = mun_popf[, "POPRC_50"]
+)
+row.names(idade_mun) = NULL
+
+# --- Linha da UF (CODMUNRES = 26) ------------------------------------------
+linha_uf = data.frame(
+  ANO           = 2016,
+  NIVEL         = "UF",
+  CODMUNRES     = 26,
+  POPRE_T       = sidra_1$POPRE_T[sidra_1$CODMUNRES == 26],
+  POPRC_T       = sidra_2$POPRC_T[sidra_2$CODMUNRES == 26],
+  POPRC_M       = sidra_2$POPRC_M[sidra_2$CODMUNRES == 26],
+  POPRC_F       = sidra_2$POPRC_F[sidra_2$CODMUNRES == 26],
+  POPRC_15      = uf_pop[["POPRC_15"]],
+  POPRC_15_49   = uf_pop[["POPRC_15_49"]],
+  POPRC_50      = uf_pop[["POPRC_50"]],
+  POPRC_F_15    = uf_popf[["POPRC_15"]],
+  POPRC_F_15_49 = uf_popf[["POPRC_15_49"]],
+  POPRC_F_50    = uf_popf[["POPRC_50"]]
+)
+
+# --- Linhas dos municípios --------------------------------------------------
+# all = TRUE garante que nenhum município se perca se faltar em algum banco
+mun = merge(sidra_1[nchar(as.character(sidra_1$CODMUNRES)) == 7,
+                    c("CODMUNRES", "POPRE_T")],
+            sidra_2[nchar(as.character(sidra_2$CODMUNRES)) == 7,
+                    c("CODMUNRES", "POPRC_T", "POPRC_M", "POPRC_F")],
+            by = "CODMUNRES", all = TRUE)
+mun = merge(mun, idade_mun, by = "CODMUNRES", all = TRUE)
+
+linhas_municipio = data.frame(ANO = 2016, NIVEL = "MUNICIPIO", mun)
+
+# --- Banco final, com a UF na 1a linha --------------------------------------
+SIDRA_PE = rbind(linha_uf, linhas_municipio)
+row.names(SIDRA_PE) = NULL
+
+# Conferindo o banco criado
+dim(SIDRA_PE)     # 186 linhas (1 UF + 185 municípios) e 13 colunas
+names(SIDRA_PE)   # a ordem deve ser a mesma do arquivo da Tarefa 4
+str(SIDRA_PE)
+head(SIDRA_PE[, 1:7])
+table(SIDRA_PE$NIVEL)   # MUNICIPIO: 185   UF: 1
+
+# Conferindo se a linha da UF é igual à soma dos municípios
+SIDRA_PE$POPRC_T[1] == sum(SIDRA_PE$POPRC_T[-1])   # deve ser TRUE
+SIDRA_PE$POPRE_T[1] == sum(SIDRA_PE$POPRE_T[-1])   # deve ser TRUE
+
+# Conferindo a coerência interna dos grupos etários
+SIDRA_PE$POPRC_15 + SIDRA_PE$POPRC_15_49 + SIDRA_PE$POPRC_50 == SIDRA_PE$POPRC_T
+SIDRA_PE$POPRC_M + SIDRA_PE$POPRC_F == SIDRA_PE$POPRC_T
+
+# Resultados obtidos para a linha da UF (26 - PE):
+# POPRE_T 9410336      POPRC_T 8796448      POPRC_M 4230681
+# POPRC_F 4565767      POPRC_15 2256769     POPRC_15_49 4842320
+# POPRC_50 1697359     POPRC_F_15 1110611   POPRC_F_15_49 2501701
+# POPRC_F_50 953455
+
+# OBSERVAÇÕES:
+# 1. POPRE_T é a população estimada de 2016 e as POPRC_ são do censo de 2010,
+#    por isso POPRE_T é maior e não faz sentido comparar as duas diretamente.
+# 2. Aqui CODMUNRES fica com 7 dígitos nos municípios, como o roteiro avisa na
+#    ETAPA 6 (SIDRA e ATLAS com 7 dígitos; SIM, SINASC e SINISA com 6).
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 4 commit com a mensagem "script BDEM - SIDRA - tarefas 1 a 4" e envie para o repositório Projeto_BDEM_2016
 
 
