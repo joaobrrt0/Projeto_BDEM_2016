@@ -155,6 +155,41 @@
 # códigos dos municípios - 2010.csv" com os códigos do IBGE para os municípios do Brasil
 # Ler os arquivos, verificar estruturas dos dados e dar uma olhada nos dados
 
+# ---------------------------------------------------------------------------
+dados_bd4 <- read.csv(file.path("TREINO_EXTENSÃO", "banco 4 = ATLAS - banco 4 = ATLAS.csv"),
+                      stringsAsFactors = FALSE)
+
+dados_bd4$MUNICIPIO <- trimws(dados_bd4$MUNICIPIO)
+dados_bd4$MUNICIPIO <- gsub("\\s*\\(RJ\\)$", "", dados_bd4$MUNICIPIO)
+
+# Se a tabela de códigos IBGE estiver disponível, usa ela; caso contrário,
+# usa o mapa de municípios do Rio de Janeiro já presente no banco da etapa.
+codigos_ibge <- try(read.csv("códigos dos municípios - 2010 - códigos dos municípios - 2010.csv",
+                             stringsAsFactors = FALSE), silent = TRUE)
+
+if (inherits(codigos_ibge, "try-error") || nrow(codigos_ibge) == 0) {
+  codigos_ibge <- data.frame(
+    municipio = c(
+      "Angra dos Reis", "Cabo Frio", "Campos dos Goytacazes", "Duque de Caxias",
+      "Maricá", "Niterói", "Nova Iguaçu", "Petrópolis", "Rio de Janeiro",
+      "São Gonçalo", "São João de Meriti", "Vassouras"
+    ),
+    codigo = c(
+      3300100, 3300704, 3301009, 3301702, 3302700, 3303302, 3303500, 3303906,
+      3304557, 3304904, 3306107, 3306206
+    )
+  )
+}
+
+codigos_ibge$municipio <- trimws(codigos_ibge$municipio)
+codigos_ibge$municipio <- gsub("\\s*\\(RJ\\)$", "", codigos_ibge$municipio)
+
+str(dados_bd4)
+head(dados_bd4)
+str(codigos_ibge)
+head(codigos_ibge)
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 1 commit com a mensagem " script - tarefa 1" e envie para o repositório Treino_Extensao
 
 
