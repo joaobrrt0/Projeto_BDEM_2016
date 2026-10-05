@@ -197,6 +197,14 @@ head(codigos_ibge)
 # Criar uma nova variável em dados_bd4 MUNICIPIOS atribuindo os códigos dos municípios, de forma a ficar
 # coerente com os nomes dos municipios e códigos IBGE
 
+# ---------------------------------------------------------------------------
+dados_bd4$MUNICIPIOS <- codigos_ibge$codigo[match(dados_bd4$MUNICIPIO, codigos_ibge$municipio)]
+dados_bd4$MUNICIPIOS <- as.numeric(dados_bd4$MUNICIPIOS)
+dados_bd4 <- dados_bd4[!is.na(dados_bd4$MUNICIPIOS), ]
+
+dados_bd4[c("MUNICIPIO", "MUNICIPIOS")]
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 2 commit com a mensagem " script - tarefa 1 a 2" e envie para o repositório Treino_Extensao
 
 
