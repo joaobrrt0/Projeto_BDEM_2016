@@ -354,11 +354,49 @@ all.equal(confere, BANCO2_RJ)   # deve ser TRUE
 # Tarefa 1: Leitura do banco de dados banco 3 = SIDRA.csv com o nome de dados_bd3
 # Ler o arquivo, verificar estrutura dos dados e dar uma olhada nos dados
 
+# ---------------------------------------------------------------------------
+# Leitura do banco de dados: este arquivo é separado por vírgula, por isso read.csv
+dados_bd3 = read.csv("banco 3 = SIDRA - banco 3 = SIDRA.csv")
+
+# Verificando a estrutura dos dados
+dim(dados_bd3)     # 13 linhas e 4 colunas
+str(dados_bd3)
+names(dados_bd3)
+# "MUNICIPIO" "HABILITADOS_GERAL_2025" "POP_FEM_HABILITADA_2020" "POP_MASC_HABILITADA_2020"
+
+# Dando uma olhada nos dados
+head(dados_bd3)
+dados_bd3
+# a 1a linha é a UF (código 33, com 2 dígitos) e as outras 12 são municípios
+# do RJ, com código de 7 dígitos
+
+summary(dados_bd3)
+sum(is.na(dados_bd3))   # 0: não há valores faltantes
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 1 commit com a mensagem " script - tarefa 1" e envie para o repositório Treino_Extensao
 
 
 # Tarefa 2: Manipulação dos dados
 # Criar a variável MUNICIPIOS = MUNICIPIO em dados_bd3, sendo que agora com 6 dígitos (em vez de 7 dígitos), desprezando o último dígito verificador
+
+# ---------------------------------------------------------------------------
+# MUNICIPIO tem 7 dígitos nos municípios, sendo o último o dígito verificador
+# A 1a linha é a UF (código 33, com 2 dígitos), que não tem dígito verificador,
+# por isso o ifelse: só os códigos de 7 dígitos perdem o último algarismo
+dados_bd3$MUNICIPIOS = ifelse(nchar(as.character(dados_bd3$MUNICIPIO)) == 7,
+                              dados_bd3$MUNICIPIO %/% 10,
+                              dados_bd3$MUNICIPIO)
+
+# Conferindo a variável criada
+dados_bd3[, c("MUNICIPIO", "MUNICIPIOS")]
+# 33 continua 33; 3304557 vira 330455; 3303302 vira 330330; e assim por diante
+
+table(nchar(as.character(dados_bd3$MUNICIPIOS)))
+# resultado: 2 dígitos: 1 linha (a UF) e 6 dígitos: 12 linhas (os municípios)
+
+str(dados_bd3)
+# ---------------------------------------------------------------------------
 
 # Ao terminar a Tarefa 2 commit com a mensagem " script - tarefa 1 a 2" e envie para o repositório Treino_Extensao
 
@@ -372,10 +410,61 @@ all.equal(confere, BANCO2_RJ)   # deve ser TRUE
 # POPHF: população total feminina de habilitadas
 # POPHM: população total masculina de habilitadas
 
+# ---------------------------------------------------------------------------
+# NIVEL: a linha com código de 2 dígitos é a UF; as de 7 dígitos são municípios
+BANCO3_RJ = data.frame(
+  ANO    = 2025,
+  NIVEL  = ifelse(nchar(as.character(dados_bd3$MUNICIPIO)) == 7,
+                  "MUNICIPIO", "UF"),
+  CODIGO = dados_bd3$MUNICIPIOS,
+  POPH   = dados_bd3$HABILITADOS_GERAL_2025,
+  POPHF  = dados_bd3$POP_FEM_HABILITADA_2020,
+  POPHM  = dados_bd3$POP_MASC_HABILITADA_2020
+)
+
+# Garantindo que a 1a linha do banco seja a da UF 33
+BANCO3_RJ = rbind(BANCO3_RJ[BANCO3_RJ$NIVEL == "UF", ],
+                  BANCO3_RJ[BANCO3_RJ$NIVEL == "MUNICIPIO", ])
+row.names(BANCO3_RJ) = NULL
+
+# Conferindo o banco criado
+dim(BANCO3_RJ)     # 13 linhas e 6 colunas
+str(BANCO3_RJ)
+BANCO3_RJ
+
+table(BANCO3_RJ$NIVEL)   # MUNICIPIO: 12   UF: 1
+
+# Conferindo se a linha da UF é igual à soma das linhas dos municípios
+BANCO3_RJ$POPH[1]  == sum(BANCO3_RJ$POPH[-1])    # TRUE  (6587300)
+BANCO3_RJ$POPHF[1] == sum(BANCO3_RJ$POPHF[-1])   # TRUE  (2787000)
+BANCO3_RJ$POPHM[1] == sum(BANCO3_RJ$POPHM[-1])   # TRUE  (3275500)
+
+# Conferindo se homens mais mulheres dá o total de habilitados
+all(BANCO3_RJ$POPHF + BANCO3_RJ$POPHM == BANCO3_RJ$POPH)
+# resultado: FALSE
+# não é erro do script: HABILITADOS_GERAL é de 2025 e os dois recortes por sexo
+# são de 2020, então os totais não fecham linha a linha
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 3 commit com a mensagem " script - tarefa 1 a 3" e envie para o repositório Treino_Extensao
 
 
 # Tarefa 4: Exportar o banco de dados BANCO3_RJ com o nome BANCO3_RJ.csv
+
+# ---------------------------------------------------------------------------
+# Exportação usando "," como separador, igual ao arquivo lido com read.csv
+write.csv(BANCO3_RJ, "BANCO3_RJ.csv", row.names = FALSE)
+
+# Conferindo o arquivo exportado
+file.exists("BANCO3_RJ.csv")
+confere = read.csv("BANCO3_RJ.csv")
+dim(confere)      # 13 linhas e 6 colunas
+names(confere)
+confere
+
+# O banco lido de volta deve ser igual ao que foi exportado
+all.equal(confere, BANCO3_RJ)   # deve ser TRUE
+# ---------------------------------------------------------------------------
 
 # Ao terminar a Tarefa 4 commit com a mensagem "dados e script - Etapa 3" e envie para o repositório Treino_Extensao
 
