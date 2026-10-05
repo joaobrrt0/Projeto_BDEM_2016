@@ -244,6 +244,14 @@ head(BANCO4_RJ)
 
 # Tarefa 4: Exportar o banco de dados BANCO4_RJ com o nome BANCO4_RJ.csv
 
+# ---------------------------------------------------------------------------
+write.csv(BANCO4_RJ, file = file.path("TREINO_EXTENSÃO", "BANCO4_RJ.csv"), row.names = FALSE)
+
+file.exists(file.path("TREINO_EXTENSÃO", "BANCO4_RJ.csv"))
+confere_bd4 <- read.csv(file.path("TREINO_EXTENSÃO", "BANCO4_RJ.csv"), stringsAsFactors = FALSE)
+all.equal(confere_bd4, BANCO4_RJ)
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 4 commit com a mensagem "dados e script - Etapa 4" e envie para o repositório Treino_Extensao
 
 
