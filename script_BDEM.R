@@ -1451,13 +1451,10 @@ head(confere[, 1:7])
 # ---------------------------------------------------------------------------
 # UF de trabalho: PERNAMBUCO (PE) - código 26
 # Os três arquivos são separados por vírgula, por isso read.csv
-arq_cod = paste0("códigos dos municípios - 2010 - códigos dos municípios",
-                 " - 2010.csv")
-arq_a1  = paste0("IDHM - 2010 (CENSO) e 2016 (PNAD) - total e por sexo - UF -",
-                 " Atlas Brasil - IDHM - 2010 (CENSO) e 2016 (PNAD) - total e",
-                 " por sexo - UF - Atlas Brasil.csv")
-arq_a2  = paste0("IDHM - 2010 - municípios - Atlas Brasil - IDHM - 2010 -",
-                 " municípios - Atlas Brasil.csv")
+# Os nomes dos arquivos são os mesmos listados no roteiro
+arq_cod = "códigos dos municípios - 2010.csv"
+arq_a1  = "IDHM - 2010 (CENSO) e 2016 (PNAD) - total e por sexo - UF - Atlas Brasil.csv"
+arq_a2  = "IDHM - 2010 - municípios - Atlas Brasil.csv"
 
 file.exists(arq_cod, arq_a1, arq_a2)   # os três devem ser TRUE
 
