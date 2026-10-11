@@ -1557,6 +1557,119 @@ UF_codigo = data.frame(
 # Criar banco final ATLAS_UF "juntando" os bancos linha_estado e ATLAS_MUNICIPIO
 
 
+# ---------------------------------------------------------------------------
+# --- Função para deixar todo IDHM na escala de 0 a 1 -----------------------
+# O IDHM varia de 0 a 1, então os valores >= 1 perderam a vírgula decimal e
+# precisam ser divididos por 1000 (673 vira 0.673); os que já são decimais
+# ficam como estão (0.72)
+ajusta_idhm = function(x) ifelse(x >= 1, x / 1000, x)
+
+# --- Retirar de dados_atlas_1 a linha do Brasil ----------------------------
+dados_atlas_1 = dados_atlas_1[which(dados_atlas_1$UF != "Brasil"), ]
+nrow(dados_atlas_1)   # 27 UF
+
+# --- Adicionar (com merge by UF) as colunas de UF_codigo -------------------
+dados_atlas_1 = merge(dados_atlas_1, UF_codigo, by = "UF")
+nrow(dados_atlas_1)   # continua 27: todos os nomes de UF casaram
+names(dados_atlas_1)
+
+# --- Criar o banco linha_estado --------------------------------------------
+linha_estado = data.frame(
+  ANO       = 2016,
+  NIVEL     = "UF",
+  CODMUNRES = dados_atlas_1$CODUF,
+  IDHM_A    = ajusta_idhm(dados_atlas_1$IDHM_2016),
+  IDHM_CA   = ajusta_idhm(dados_atlas_1$IDHM_2010),
+  IDHM_CA_M = ajusta_idhm(dados_atlas_1$IDHM_2010_M),
+  IDHM_CA_F = ajusta_idhm(dados_atlas_1$IDHM_2010_F)
+)
+
+# --- Selecionar de linha_estado a UF do aluno por CODMUNRES ----------------
+linha_estado = linha_estado[which(linha_estado$CODMUNRES == 26), ]
+row.names(linha_estado) = NULL
+linha_estado
+# resultado: ANO 2016 | NIVEL UF | CODMUNRES 26 | IDHM_A 0.720 |
+#            IDHM_CA 0.673 | IDHM_CA_M 0.637 | IDHM_CA_F 0.706
+
+# --- Criar em dados_atlas_2 a coluna com UF --------------------------------
+# o nome vem como "Recife (PE)": a sigla são os 2 caracteres antes do ")"
+dados_atlas_2$UF = substr(dados_atlas_2$município,
+                          nchar(dados_atlas_2$município) - 2,
+                          nchar(dados_atlas_2$município) - 1)
+table(dados_atlas_2$UF)   # as 27 siglas
+
+# --- Retirar (UF) da variável município ------------------------------------
+# todos os 5565 nomes terminam em " (XX)", ou seja, 5 caracteres a remover
+dados_atlas_2$município = substr(dados_atlas_2$município, 1,
+                                 nchar(dados_atlas_2$município) - 5)
+head(dados_atlas_2)
+
+# --- Acrescentar CODUF em codigos_IBGE_2010 --------------------------------
+codigos_IBGE_2010$CODUF = as.numeric(substr(codigos_IBGE_2010$CODMUNRES, 1, 2))
+table(codigos_IBGE_2010$CODUF)
+
+# --- Acrescentar a codigos_IBGE_2010 as variáveis de UF_codigo -------------
+codigos_IBGE_2010 = merge(codigos_IBGE_2010, UF_codigo, by = "CODUF")
+names(codigos_IBGE_2010)   # "CODUF" "município" "CODMUNRES" "UF" "SIGLA"
+
+# --- Associar dados_atlas_2 a codigos_IBGE_2010 ----------------------------
+# o merge precisa de município E sigla da UF porque 234 nomes de município se
+# repetem em estados diferentes (Água Boa existe em MG e em MT, por exemplo)
+atlas_municipio = merge(dados_atlas_2, codigos_IBGE_2010,
+                        by.x = c("município", "UF"),
+                        by.y = c("município", "SIGLA"))
+nrow(atlas_municipio)
+# resultado: 5564 e não 5565; o único município que não casa é Mogi Mirim (SP),
+# grafado "Moji Mirim" no arquivo de códigos do IBGE. Nenhum município de PE é
+# afetado: os 185 casam
+
+# --- Remover de atlas_municipio a coluna UF.y criada no merge --------------
+names(atlas_municipio)
+atlas_municipio$UF.y = NULL
+names(atlas_municipio)
+
+# --- Selecionar somente PE pelos dois primeiros dígitos de CODMUNRES -------
+atlas_municipio = atlas_municipio[which(substr(atlas_municipio$CODMUNRES, 1, 2) == "26"), ]
+nrow(atlas_municipio)   # 185 municípios
+
+# --- Criar o banco ATLAS_MUNICIPIO -----------------------------------------
+# só o IDHM total de 2010 existe por município; os demais ficam NA
+ATLAS_MUNICIPIO = data.frame(
+  ANO       = 2016,
+  NIVEL     = "MUNICIPIO",
+  CODMUNRES = atlas_municipio$CODMUNRES,
+  IDHM_A    = NA,
+  IDHM_CA   = ajusta_idhm(atlas_municipio$IDHM_2010),
+  IDHM_CA_M = NA,
+  IDHM_CA_F = NA
+)
+
+# --- Criar o banco final ATLAS_PE ------------------------------------------
+ATLAS_PE = rbind(linha_estado, ATLAS_MUNICIPIO)
+row.names(ATLAS_PE) = NULL
+
+# Conferindo o banco criado
+dim(ATLAS_PE)     # 186 linhas (1 UF + 185 municípios) e 7 colunas
+names(ATLAS_PE)   # a ordem deve ser a mesma do arquivo da Tarefa 2
+str(ATLAS_PE)
+head(ATLAS_PE)
+table(ATLAS_PE$NIVEL)   # MUNICIPIO: 185   UF: 1
+
+# Conferindo que o IDHM ficou todo na escala de 0 a 1
+range(ATLAS_PE$IDHM_CA)
+# resultado: 0.487 e 0.788, os IDHM de 2010 do menor e do maior município
+# (a UF fica em 0.673, no meio da faixa)
+
+# Conferindo que só a linha da UF tem IDHM_A, IDHM_CA_M e IDHM_CA_F
+colSums(is.na(ATLAS_PE))   # 185 NA em IDHM_A, IDHM_CA_M e IDHM_CA_F
+
+# OBSERVAÇÕES:
+# 1. O IDHM da UF (0.673 em 2010) não é a média dos municípios: o IDHM é
+#    calculado sobre a população toda do estado, não é agregável por município.
+# 2. IDHM_A usa o IDHM de 2016, que vem da PNAD; IDHM_CA, IDHM_CA_M e IDHM_CA_F
+#    usam o IDHM de 2010, que vem do Censo, como pede o arquivo da Tarefa 2.
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 2 commit com a mensagem "script BDEM - ATLAS - tarefas 1 a 2" e envie para o repositório Projeto_BDEM_2016
 
 
