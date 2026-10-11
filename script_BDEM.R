@@ -1457,6 +1457,53 @@ head(confere[, 1:7])
 
 # Verificar se a leitura de todos os bancos foi feita corretamente e a estrutura dos dados
 
+# ---------------------------------------------------------------------------
+# UF de trabalho: PERNAMBUCO (PE) - código 26
+# Os três arquivos são separados por vírgula, por isso read.csv
+arq_cod = paste0("códigos dos municípios - 2010 - códigos dos municípios",
+                 " - 2010.csv")
+arq_a1  = paste0("IDHM - 2010 (CENSO) e 2016 (PNAD) - total e por sexo - UF -",
+                 " Atlas Brasil - IDHM - 2010 (CENSO) e 2016 (PNAD) - total e",
+                 " por sexo - UF - Atlas Brasil.csv")
+arq_a2  = paste0("IDHM - 2010 - municípios - Atlas Brasil - IDHM - 2010 -",
+                 " municípios - Atlas Brasil.csv")
+
+file.exists(arq_cod, arq_a1, arq_a2)   # os três devem ser TRUE
+
+codigos_IBGE_2010 = read.csv(arq_cod)   # nomes e códigos IBGE dos municípios
+dados_atlas_1     = read.csv(arq_a1)    # IDHM por UF, 2010 e 2016, total e por sexo
+dados_atlas_2     = read.csv(arq_a2)    # IDHM 2010 por município
+
+# Verificando se a leitura foi feita corretamente
+dim(codigos_IBGE_2010)   # 5565 linhas e 2 colunas
+dim(dados_atlas_1)       # 28 linhas e 7 colunas (o Brasil mais as 27 UF)
+dim(dados_atlas_2)       # 5565 linhas e 2 colunas
+
+# Verificando a estrutura dos dados
+str(codigos_IBGE_2010)
+str(dados_atlas_1)
+str(dados_atlas_2)
+
+names(codigos_IBGE_2010)   # "município" "CODMUNRES"
+names(dados_atlas_1)
+# "UF" "IDHM_2010" "IDHM_2016" "IDHM_2010_M" "IDHM_2016_M" "IDHM_2010_F" "IDHM_2016_F"
+names(dados_atlas_2)       # "município" "IDHM_2010"
+
+head(codigos_IBGE_2010)
+head(dados_atlas_1)
+head(dados_atlas_2)
+
+# Atenção: os arquivos do Atlas só têm os NOMES dos municípios e das UF, sem
+# código nenhum; quem tem o código do IBGE é o codigos_IBGE_2010
+# Nos arquivos do Atlas o município vem como "Recife (PE)", com a sigla da UF
+head(dados_atlas_2$município)
+
+# Atenção 2: o IDHM vem em duas escalas diferentes no mesmo arquivo
+summary(dados_atlas_2$IDHM_2010)
+# a maioria dos valores está sem a vírgula decimal (673 no lugar de 0,673) e
+# 567 dos 5565 municípios já vêm em decimal (0.72); isso é corrigido na Tarefa 2
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 1 commit com a mensagem "script BDEM - ATLAS - tarefa 1" e envie para o repositório Projeto_BDEM_2016
 
 
