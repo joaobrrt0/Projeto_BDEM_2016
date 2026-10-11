@@ -847,7 +847,7 @@ str(dados_sinasc_2)
 
 # ---------------------------------------------------------------------------
 # Leitura da Tabela PIG: este arquivo é separado por vírgula, por isso read.csv
-tabela_pig = read.csv("Tabela_PIG_Brasil - Tabela_PIG_Brasil.csv")
+tabela_pig = read.csv("Tabela_PIG_Brasil.csv")
 
 str(tabela_pig)
 head(tabela_pig)
