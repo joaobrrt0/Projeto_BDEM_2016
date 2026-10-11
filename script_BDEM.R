@@ -1674,6 +1674,19 @@ colSums(is.na(ATLAS_PE))   # 185 NA em IDHM_A, IDHM_CA_M e IDHM_CA_F
 
 
 # Tarefa 3. Exportar o banco de dados com o nome ATLAS_UF.csv (Exemplo: ATLAS_RJ.csv)
+# ---------------------------------------------------------------------------
+# Exportação com ";" como separador, igual aos outros bancos já exportados,
+# para os cinco arquivos da ETAPA 6 ficarem no mesmo formato
+write.csv2(ATLAS_PE, "ATLAS_PE.csv", row.names = FALSE)
+
+# Conferindo o arquivo exportado
+file.exists("ATLAS_PE.csv")
+confere = read.csv2("ATLAS_PE.csv")
+dim(confere)      # 186 linhas e 7 colunas
+names(confere)
+head(confere)
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 3 commit com o comentário "dados ATLAS_UF 2016 e script - ATLAS - tarefas 1 a 3"  e envie para o repositório Projeto_BDEM_2016
 
 
