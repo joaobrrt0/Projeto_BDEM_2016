@@ -1211,20 +1211,11 @@ head(confere[, 1:8])
 # ---------------------------------------------------------------------------
 # UF de trabalho: PERNAMBUCO (PE) - código 26
 # Os quatro arquivos são separados por vírgula, por isso read.csv
-# Os nomes são muito longos, então ficam guardados em variáveis antes da leitura
-arq_1 = paste0("população residente estimada - UF e municípios - 2016 - SIDRA",
-               " - tabela_6579 - população residente estimada - UF e municípios",
-               " - 2016 - SIDRA - tabela_6579.csv")
-arq_2 = paste0("população residente censo 2010 - UF e municípios - total e por",
-               " sexo - SIDRA - tabela_1552 - população residente censo 2010 -",
-               " UF e municípios - total e por sexo - SIDRA - tabela_1552.csv")
-arq_3 = paste0("população residente censo 2010 - por faixa etária - UF - SIDRA",
-               " - tabela_1552 - população residente censo 2010 - por faixa",
-               " etária - UF - SIDRA - tabela_1552.csv")
-arq_4 = paste0("população residente censo 2010 - por faixa etária e sexo -",
-               " municípios - SIDRA - tabela_1552 - população residente censo",
-               " 2010 - por faixa etária e sexo - municípios - SIDRA -",
-               " tabela_1552.csv")
+# Os nomes dos arquivos são os mesmos listados no roteiro
+arq_1 = "população residente estimada - UF e municípios - 2016 - SIDRA - tabela_6579.csv"
+arq_2 = "população residente censo 2010 - UF e municípios - total e por sexo - SIDRA - tabela_1552.csv"
+arq_3 = "população residente censo 2010 - por faixa etária - UF - SIDRA - tabela_1552.csv"
+arq_4 = "população residente censo 2010 - por faixa etária e sexo - municípios - SIDRA - tabela_1552.csv"
 
 file.exists(arq_1, arq_2, arq_3, arq_4)   # os quatro devem ser TRUE
 
