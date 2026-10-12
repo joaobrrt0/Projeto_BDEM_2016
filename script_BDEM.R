@@ -1228,10 +1228,13 @@ dados_sidra_3 = read.csv(arq_3, na.strings = c("NA", "..."))   # censo 2010, por
 dados_sidra_4 = read.csv(arq_4, na.strings = c("NA", "..."))   # censo 2010, por faixa etária e sexo, municípios
 
 # Verificando se a leitura foi feita corretamente
-dim(dados_sidra_1)   # 5597 linhas e 3 colunas
-dim(dados_sidra_2)   # 5591 linhas e 5 colunas
+dim(dados_sidra_1)   # 5598 linhas e 3 colunas (27 UF + 5571 municípios)
+dim(dados_sidra_2)   # 5592 linhas e 5 colunas (27 UF + 5565 municípios)
 dim(dados_sidra_3)   # 513 linhas e 6 colunas (27 UF x 19 faixas etárias)
-dim(dados_sidra_4)   # 105734 linhas e 5 colunas
+dim(dados_sidra_4)   # 105735 linhas e 5 colunas (5565 municípios x 19 faixas)
+# a tabela 6579 (estimativa de 2016) tem 5571 municípios e a 1552 (censo 2010)
+# tem 5565: a diferença são municípios criados depois do censo, entre eles
+# Boa Esperança do Norte (MT), justamente o que ainda não tem estimativa
 
 # Verificando a estrutura dos dados
 str(dados_sidra_1)
@@ -1251,7 +1254,7 @@ head(dados_sidra_4)
 
 # Atenção: nos bancos 1, 2 e 4 o CODMUNRES tem 7 dígitos nos municípios e
 # 2 dígitos nas linhas de UF; no banco 3 o CODMUNRES já é o código da UF
-table(nchar(as.character(dados_sidra_1$CODMUNRES)))   # 2: 27 UF e 7: 5570 municípios
+table(nchar(as.character(dados_sidra_1$CODMUNRES)))   # 2: 27 UF e 7: 5571 municípios
 table(nchar(as.character(dados_sidra_3$CODMUNRES)))   # só 2 dígitos
 
 # As 19 faixas etárias são as mesmas nos bancos 3 e 4
