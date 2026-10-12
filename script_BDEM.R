@@ -1585,8 +1585,7 @@ UF_codigo = data.frame(
 # Ou seja, só os valores de 3 casas foram corrompidos, e dividir por 1000
 # devolve o valor original sem perda nenhuma
 # Conferido nos dois arquivos de IDHM: não há valor inteiro de 1 ou 2 dígitos,
-# não há
-# valor igual a 1 e não há NA, então a regra não erra em nenhum caso
+# não há valor igual a 1 e não há NA, então a regra não erra em nenhum caso
 ajusta_idhm = function(x) ifelse(x >= 1, x / 1000, x)
 
 # --- Retirar de dados_atlas_1 a linha do Brasil ----------------------------
