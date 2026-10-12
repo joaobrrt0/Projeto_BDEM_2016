@@ -1219,10 +1219,13 @@ arq_4 = "população residente censo 2010 - por faixa etária e sexo - municípi
 
 file.exists(arq_1, arq_2, arq_3, arq_4)   # os quatro devem ser TRUE
 
-dados_sidra_1 = read.csv(arq_1)   # população residente estimada 2016
-dados_sidra_2 = read.csv(arq_2)   # censo 2010, total e por sexo
-dados_sidra_3 = read.csv(arq_3)   # censo 2010, por faixa etária, UF
-dados_sidra_4 = read.csv(arq_4)   # censo 2010, por faixa etária e sexo, municípios
+# O IBGE escreve "..." quando não tem o dado: a tabela 6579 traz isso em um
+# município do MT sem estimativa de população. Sem o na.strings, esse único
+# valor faria o R ler POPRE_T inteira como texto em vez de número
+dados_sidra_1 = read.csv(arq_1, na.strings = c("NA", "..."))   # população residente estimada 2016
+dados_sidra_2 = read.csv(arq_2, na.strings = c("NA", "..."))   # censo 2010, total e por sexo
+dados_sidra_3 = read.csv(arq_3, na.strings = c("NA", "..."))   # censo 2010, por faixa etária, UF
+dados_sidra_4 = read.csv(arq_4, na.strings = c("NA", "..."))   # censo 2010, por faixa etária e sexo, municípios
 
 # Verificando se a leitura foi feita corretamente
 dim(dados_sidra_1)   # 5597 linhas e 3 colunas
