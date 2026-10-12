@@ -1577,14 +1577,15 @@ UF_codigo = data.frame(
 # --- Função para deixar todo IDHM na escala de 0 a 1 -----------------------
 # O IDHM varia de 0 a 1 por construção, então qualquer valor >= 1 só pode ser
 # erro de escala. Nos arquivos do Atlas os valores aparecem de duas formas:
-# em forma inteira eles têm SEMPRE 3 dígitos (de 418 a 862) e em forma decimal
+# em forma inteira eles têm SEMPRE 3 dígitos (de 418 a 865) e em forma decimal
 # têm SEMPRE 1 ou 2 casas (de 0.45 a 0.84)
 # Isso é a marca de um export feito com vírgula decimal: 0,673 tem 3 casas,
 # foi lido como separador de milhar e virou 673, enquanto 0,72 e 0,7 não
 # formam grupo de milhar e sobreviveram como decimal
 # Ou seja, só os valores de 3 casas foram corrompidos, e dividir por 1000
 # devolve o valor original sem perda nenhuma
-# Conferido nos três arquivos: não há valor inteiro de 1 ou 2 dígitos, não há
+# Conferido nos dois arquivos de IDHM: não há valor inteiro de 1 ou 2 dígitos,
+# não há
 # valor igual a 1 e não há NA, então a regra não erra em nenhum caso
 ajusta_idhm = function(x) ifelse(x >= 1, x / 1000, x)
 
