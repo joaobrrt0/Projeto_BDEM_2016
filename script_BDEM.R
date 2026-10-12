@@ -1188,6 +1188,11 @@ SINASC_PE$TN[1] == sum(SINASC_PE$TN[-1])    # deve ser TRUE
 # 4. PE tem 185 municípios, mas aparecem 186 códigos: o código 260000
 #    ("município ignorado") foi mantido para que a soma dos municípios continue
 #    batendo com o total da UF.
+# 5. TNRC e TNRCR não são comparáveis entre si. TNRC olha as 61 variáveis do
+#    arquivo, onde só o campo em branco conta como ausência. TNRCR olha as 21
+#    variáveis já tratadas na Tarefa 5, onde "ignorado" também virou NA - é o
+#    que o arquivo da Tarefa 9 pede ao falar em "sem qualquer NA". Contando só
+#    os brancos, TNRCR daria 123832 em vez de 118373.
 # ---------------------------------------------------------------------------
 
 # Ao terminar a Tarefa 9 commit com a mensagem "script BDEM - SINASC - tarefas 1 a 9" e envie para o repositório Projeto_BDEM_2016
