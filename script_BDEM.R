@@ -400,6 +400,23 @@ SIM_PE$TO[1] == sum(SIM_PE$TO[-1])    # deve ser TRUE
 # 3. PE tem 185 municípios, mas aparecem 186 códigos: o código 260000
 #    ("município ignorado") tem 301 óbitos e foi mantido para que a soma dos
 #    municípios continue batendo com o total da UF.
+# 4. TO_MT e as variáveis 28 a 40 contam o óbito materno pelo MOMENTO da morte
+#    (TPMORTEOCO), que é a única informação disponível entre as 9 variáveis
+#    selecionadas na Tarefa 2 e é o que as próprias descrições das variáveis
+#    28 a 32 pedem ("durante a gestação", "no parto", "no abortamento"...).
+#    A definição estrita da CID-10 exige também que a causa seja obstétrica.
+#    Conferindo com a causa básica: dos 121 óbitos contados em TO_MT, 72 têm
+#    causa do capítulo O (O00-O99) e 49 não têm - entre eles homicídios por
+#    arma de fogo, infartos e acidentes de trânsito. Pelo critério de causa
+#    seriam 76 óbitos maternos e 71 precoces, no lugar de 121 e 99.
+#    O critério do momento foi mantido porque é o que o roteiro seleciona e
+#    porque é ele que faz TO_MT_DG + TO_MT_PT + TO_MT_AB + TO_MT_42 +
+#    TO_MT_43 fechar exatamente com TO_MT.
+# 5. TORC e TORCR não são comparáveis entre si. TORC olha as 87 variáveis do
+#    arquivo, onde só o campo em branco conta como ausência. TORCR olha as 9
+#    variáveis já tratadas na Tarefa 5, onde "ignorado" também virou NA - é o
+#    que o arquivo da Tarefa 7 pede ao falar em "sem qualquer NA". Contando só
+#    os brancos, TORCR daria 3035 em vez de 2297.
 # ---------------------------------------------------------------------------
 
 # Ao terminar a Tarefa 7 commit com a mensagem "script BDEM - SIM - tarefas 1 a 7" e envie para o repositório Projeto_BDEM_2016
@@ -1171,6 +1188,11 @@ SINASC_PE$TN[1] == sum(SINASC_PE$TN[-1])    # deve ser TRUE
 # 4. PE tem 185 municípios, mas aparecem 186 códigos: o código 260000
 #    ("município ignorado") foi mantido para que a soma dos municípios continue
 #    batendo com o total da UF.
+# 5. TNRC e TNRCR não são comparáveis entre si. TNRC olha as 61 variáveis do
+#    arquivo, onde só o campo em branco conta como ausência. TNRCR olha as 21
+#    variáveis já tratadas na Tarefa 5, onde "ignorado" também virou NA - é o
+#    que o arquivo da Tarefa 9 pede ao falar em "sem qualquer NA". Contando só
+#    os brancos, TNRCR daria 123832 em vez de 118373.
 # ---------------------------------------------------------------------------
 
 # Ao terminar a Tarefa 9 commit com a mensagem "script BDEM - SINASC - tarefas 1 a 9" e envie para o repositório Projeto_BDEM_2016
