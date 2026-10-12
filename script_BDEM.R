@@ -1547,9 +1547,17 @@ UF_codigo = data.frame(
 
 # ---------------------------------------------------------------------------
 # --- Função para deixar todo IDHM na escala de 0 a 1 -----------------------
-# O IDHM varia de 0 a 1, então os valores >= 1 perderam a vírgula decimal e
-# precisam ser divididos por 1000 (673 vira 0.673); os que já são decimais
-# ficam como estão (0.72)
+# O IDHM varia de 0 a 1 por construção, então qualquer valor >= 1 só pode ser
+# erro de escala. Nos arquivos do Atlas os valores aparecem de duas formas:
+# em forma inteira eles têm SEMPRE 3 dígitos (de 418 a 862) e em forma decimal
+# têm SEMPRE 1 ou 2 casas (de 0.45 a 0.84)
+# Isso é a marca de um export feito com vírgula decimal: 0,673 tem 3 casas,
+# foi lido como separador de milhar e virou 673, enquanto 0,72 e 0,7 não
+# formam grupo de milhar e sobreviveram como decimal
+# Ou seja, só os valores de 3 casas foram corrompidos, e dividir por 1000
+# devolve o valor original sem perda nenhuma
+# Conferido nos três arquivos: não há valor inteiro de 1 ou 2 dígitos, não há
+# valor igual a 1 e não há NA, então a regra não erra em nenhum caso
 ajusta_idhm = function(x) ifelse(x >= 1, x / 1000, x)
 
 # --- Retirar de dados_atlas_1 a linha do Brasil ----------------------------
@@ -1576,8 +1584,10 @@ linha_estado = data.frame(
 linha_estado = linha_estado[which(linha_estado$CODMUNRES == 26), ]
 row.names(linha_estado) = NULL
 linha_estado
-# resultado: ANO 2016 | NIVEL UF | CODMUNRES 26 | IDHM_A 0.720 |
+# resultado: ANO 2016 | NIVEL UF | CODMUNRES 26 | IDHM_A 0.72 |
 #            IDHM_CA 0.673 | IDHM_CA_M 0.637 | IDHM_CA_F 0.706
+# o IDHM_A sai com 2 casas porque no arquivo o IDHM 2016 de PE já vem como
+# 0.72; nas UF em que ele veio em forma inteira o valor sai com 3 casas
 
 # --- Criar em dados_atlas_2 a coluna com UF --------------------------------
 # o nome vem como "Recife (PE)": a sigla são os 2 caracteres antes do ")"
