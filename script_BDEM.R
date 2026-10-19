@@ -1795,6 +1795,26 @@ colSums(is.na(dados_sinisa))
 
 # Tarefa 2. Reduzir dados_sinisa apenas para o estado que o aluno irá trabalhar (utilizar os dois primeiros dígitos de CODMUNRES), nomeando este novo banco de dados como dados_sinisa_1
 
+# ---------------------------------------------------------------------------
+# A UF de trabalho é PERNAMBUCO, cujo código é 26
+# CODMUNRES tem 6 dígitos e os dois primeiros identificam a UF
+# O which() é usado para que eventuais NA em CODMUNRES não gerem linhas vazias
+dados_sinisa_1 = dados_sinisa[which(substr(dados_sinisa$CODMUNRES, 1, 2) == "26"), ]
+
+# Conferindo o tamanho do banco
+nrow(dados_sinisa_1)   # 185 municípios de PE
+
+# Conferindo que sobrou apenas PE
+table(dados_sinisa_1$Estado)                          # PE: 185
+table(substr(dados_sinisa_1$CODMUNRES, 1, 2))         # 26: 185
+
+str(dados_sinisa_1)
+
+# Quantos municípios de PE informaram cada variável
+colSums(is.na(dados_sinisa_1))
+# resultado: 6 NA em POPR_RA (179 informaram) e 123 em POPR_RE (62 informaram)
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 2 commit com a mensagem "script BDEM - SINISA - tarefas 1 a 2" e envie para o repositório Projeto_BDEM_2016
 
 
