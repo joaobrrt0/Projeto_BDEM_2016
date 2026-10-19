@@ -1636,6 +1636,7 @@ table(codigos_IBGE_2010$CODUF)
 
 # --- Acrescentar a codigos_IBGE_2010 as variáveis de UF_codigo -------------
 codigos_IBGE_2010 = merge(codigos_IBGE_2010, UF_codigo, by = "CODUF")
+nrow(codigos_IBGE_2010)    # continua 5565: todos os códigos acharam a sua UF
 names(codigos_IBGE_2010)   # "CODUF" "município" "CODMUNRES" "UF" "SIGLA"
 
 # --- Associar dados_atlas_2 a codigos_IBGE_2010 ----------------------------
@@ -1676,7 +1677,9 @@ row.names(ATLAS_PE) = NULL
 
 # Conferindo o banco criado
 dim(ATLAS_PE)     # 186 linhas (1 UF + 185 municípios) e 7 colunas
-names(ATLAS_PE)   # a ordem deve ser a mesma do arquivo da Tarefa 2
+names(ATLAS_PE)
+# "ANO" "NIVEL" "CODMUNRES" "IDHM_A" "IDHM_CA" "IDHM_CA_M" "IDHM_CA_F"
+# a ordem e a quantidade sao as mesmas do arquivo da Tarefa 2
 str(ATLAS_PE)
 head(ATLAS_PE)
 table(ATLAS_PE$NIVEL)   # MUNICIPIO: 185   UF: 1
