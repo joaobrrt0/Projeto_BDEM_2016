@@ -1746,8 +1746,9 @@ file.exists(arq_sinisa)   # deve ser TRUE
 # para o R o ponto é separador decimal. Se o tipo for decidido pelo R, uma
 # coluna em que nenhum município passe de 999.999 seria lida como número e
 # "83.807" viraria 83,807 - errado por mil e sem nenhum aviso
-# Neste arquivo isso não chega a acontecer só porque 14 municípios passam de
-# 1 milhão e têm dois pontos, o que força o R a ler a coluna como texto
+# Neste arquivo isso não chega a acontecer só porque alguns municípios passam
+# de 1 milhão e têm dois pontos, o que força o R a ler a coluna como texto
+# (14 valores assim em POPR_RA e 11 em POPR_RE)
 # Com colClasses o resultado não depende dessa sorte
 # na.strings cuida das células vazias, que são muitas neste banco
 dados_sinisa = read.csv(arq_sinisa,
@@ -1868,6 +1869,9 @@ SINISA_PE$POPR_RE[1] == sum(SINISA_PE$POPR_RE[-1], na.rm = TRUE)   # TRUE
 #    62 informaram rede de esgoto, então POPR_RE em especial está subestimado.
 #    Os NA foram mantidos nas linhas dos municípios justamente para não
 #    confundir "não informou" com "não tem atendimento".
+#    Em números: POPR_RA são 179 de 185 municípios e 76,7% da população
+#    estimada de PE em 2016 (9410336, vinda do SIDRA_PE); POPR_RE são 62 de
+#    185 e 26,7%. O POPR_RE da UF é um piso, não a cobertura do estado.
 # 2. Diferente do SIDRA e do ATLAS, aqui o CODMUNRES tem 6 dígitos, igual ao
 #    SIM e ao SINASC, como o roteiro avisa na ETAPA 6.
 # 3. Este banco não tem o código 260000 ("município ignorado") que aparece no
