@@ -1820,6 +1820,60 @@ colSums(is.na(dados_sinisa_1))
 
 # Tarefa 3. Criar um banco de dados, de nome SINISA_UF.csv (Exemplo: SINISA_RJ.csv), contendo as variáveis listadas no arquivo “Variáveis - Projeto - Tarefa 3 - SINISA.pdf”
 
+# ---------------------------------------------------------------------------
+# --- Linha da UF (CODMUNRES = 26) ------------------------------------------
+# A UF é a soma dos municípios; na.rm = TRUE porque os municípios que não
+# informaram entram como NA e não devem zerar o total do estado
+linha_uf = data.frame(
+  ANO       = 2016,
+  NIVEL     = "UF",
+  CODMUNRES = 26,
+  POPR_RA   = sum(dados_sinisa_1$POPR_RA, na.rm = TRUE),
+  POPR_RE   = sum(dados_sinisa_1$POPR_RE, na.rm = TRUE)
+)
+
+# --- Linhas dos municípios --------------------------------------------------
+linhas_municipio = data.frame(
+  ANO       = 2016,
+  NIVEL     = "MUNICIPIO",
+  CODMUNRES = dados_sinisa_1$CODMUNRES,
+  POPR_RA   = dados_sinisa_1$POPR_RA,
+  POPR_RE   = dados_sinisa_1$POPR_RE
+)
+
+# ordenando os municípios por código
+linhas_municipio = linhas_municipio[order(linhas_municipio$CODMUNRES), ]
+
+# --- Banco final, com a UF na 1a linha --------------------------------------
+SINISA_PE = rbind(linha_uf, linhas_municipio)
+row.names(SINISA_PE) = NULL
+
+# Conferindo o banco criado
+dim(SINISA_PE)     # 186 linhas (1 UF + 185 municípios) e 5 colunas
+names(SINISA_PE)   # a ordem deve ser a mesma do arquivo da Tarefa 3
+str(SINISA_PE)
+head(SINISA_PE)
+table(SINISA_PE$NIVEL)   # MUNICIPIO: 185   UF: 1
+
+# Conferindo se a linha da UF é a soma dos municípios
+SINISA_PE$POPR_RA[1] == sum(SINISA_PE$POPR_RA[-1], na.rm = TRUE)   # TRUE
+SINISA_PE$POPR_RE[1] == sum(SINISA_PE$POPR_RE[-1], na.rm = TRUE)   # TRUE
+
+# Resultados obtidos para a linha da UF (26 - PE):
+# POPR_RA 7214286   POPR_RE 2509952
+
+# OBSERVAÇÕES:
+# 1. O total da UF é a soma de quem informou, não a cobertura real do estado.
+#    Em PE só 179 dos 185 municípios informaram abastecimento de água e apenas
+#    62 informaram rede de esgoto, então POPR_RE em especial está subestimado.
+#    Os NA foram mantidos nas linhas dos municípios justamente para não
+#    confundir "não informou" com "não tem atendimento".
+# 2. Diferente do SIDRA e do ATLAS, aqui o CODMUNRES tem 6 dígitos, igual ao
+#    SIM e ao SINASC, como o roteiro avisa na ETAPA 6.
+# 3. Este banco não tem o código 260000 ("município ignorado") que aparece no
+#    SIM e no SINASC: são 185 municípios, não 186.
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 3 commit com a mensagem "script BDEM - SINISA - tarefas 1 a 3" e envie para o repositório Projeto_BDEM_2016
 
 
