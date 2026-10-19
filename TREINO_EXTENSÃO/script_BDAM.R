@@ -773,6 +773,37 @@ all.equal(confere_bd5, BANCO5_RJ)
 
 # Tarefa 2: Exportar o banco de dados BDAM_RJ com o nome BDAM_RJ.csv
 
+# ---------------------------------------------------------------------------
+# ETAPA 6 - montagem do BDAM_RJ
+# ---------------------------------------------------------------------------
+if (!file.exists("BANCO1_RJ.csv")) {
+  stop("Arquivo BANCO1_RJ.csv ausente. Gere a Etapa 1 antes de montar o BDAM_RJ.")
+}
+
+banco1_rj <- read.csv("BANCO1_RJ.csv", stringsAsFactors = FALSE)
+banco2_rj <- read.csv("BANCO2_RJ.csv", stringsAsFactors = FALSE)
+banco3_rj <- read.csv("BANCO3_RJ.csv", stringsAsFactors = FALSE)
+banco4_rj <- read.csv("BANCO4_RJ.csv", stringsAsFactors = FALSE)
+banco5_rj <- read.csv("BANCO5_RJ.csv", stringsAsFactors = FALSE)
+
+banco1_rj$CODIGO <- as.integer(banco1_rj$CODIGO)
+banco2_rj$CODIGO <- as.integer(banco2_rj$CODIGO)
+banco3_rj$CODIGO <- as.integer(banco3_rj$CODIGO)
+banco4_rj$CODIGO <- as.integer(banco4_rj$CODIGO)
+banco5_rj$CODIGO <- as.integer(banco5_rj$CODIGO)
+
+bdam_rj <- merge(banco1_rj, banco2_rj, by = c("ANO", "NIVEL", "CODIGO"), all = TRUE)
+bdam_rj <- merge(bdam_rj, banco3_rj, by = c("ANO", "NIVEL", "CODIGO"), all = TRUE)
+bdam_rj <- merge(bdam_rj, banco4_rj, by = c("ANO", "NIVEL", "CODIGO"), all = TRUE)
+bdam_rj <- merge(bdam_rj, banco5_rj, by = c("ANO", "NIVEL", "CODIGO"), all = TRUE)
+
+ordem <- order(bdam_rj$CODIGO != 33, bdam_rj$CODIGO)
+bdam_rj <- bdam_rj[ordem, ]
+row.names(bdam_rj) <- NULL
+
+write.csv(bdam_rj, file = "BDAM_RJ.csv", row.names = FALSE)
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 2 commit com a mensagem "dados e script - Etapa 6" e envie para o repositório Treino_Extensao
 
 
