@@ -5,6 +5,39 @@
 
 # Ao inserir os comandos em cada Tarefa de cada Etapa, mantenha as linhas de comentários e orientações colocadas pela professora
 
+# ---------------------------------------------------------------------------
+# Ajuste automático do diretório de trabalho para funcionar a partir da raiz do
+# repositório, da pasta TREINO_EXTENSÃO ou do caminho de download do banco SINISA
+# ---------------------------------------------------------------------------
+path_arquivo <- function(nome_arquivo) {
+  candidatos <- c(
+    file.path(getwd(), nome_arquivo),
+    file.path(getwd(), "TREINO_EXTENSÃO", nome_arquivo),
+    file.path("/workspaces/Projeto_BDEM_2016", "TREINO_EXTENSÃO", nome_arquivo),
+    file.path("/workspaces/Projeto_BDEM_2016", nome_arquivo),
+    file.path("/home/aluno/Downloads/aula 14", nome_arquivo),
+    file.path("/home/aluno/Downloads", nome_arquivo)
+  )
+
+  for (caminho in candidatos) {
+    if (file.exists(caminho)) {
+      return(caminho)
+    }
+  }
+
+  file.path(getwd(), nome_arquivo)
+}
+
+caminho_bd5 <- path_arquivo("banco 5 = SINISA - banco 5 = SINISA.csv")
+
+if (file.exists(caminho_bd5)) {
+  setwd(dirname(caminho_bd5))
+} else if (basename(getwd()) != "TREINO_EXTENSÃO" && dir.exists(file.path(getwd(), "TREINO_EXTENSÃO"))) {
+  setwd(file.path(getwd(), "TREINO_EXTENSÃO"))
+} else if (dir.exists(file.path("/workspaces/Projeto_BDEM_2016", "TREINO_EXTENSÃO"))) {
+  setwd(file.path("/workspaces/Projeto_BDEM_2016", "TREINO_EXTENSÃO"))
+}
+# ---------------------------------------------------------------------------
 
 ##### ETAPA 1 - banco 1 - equivalente ao SIM ######
 ##### Você deve criar e estar na branch banco-1 antes de inserir os comandos #####
