@@ -1734,6 +1734,62 @@ head(confere)
 # Verificar se a leitura de todos os bancos foi feita corretamente e a estrutura dos dados
 # Remover a pontuação de milhar e converter para formato numérico
 
+# ---------------------------------------------------------------------------
+# UF de trabalho: PERNAMBUCO (PE) - código 26
+# O arquivo é separado por vírgula, por isso read.csv
+arq_sinisa = "agua e esgoto - município - 2016.csv"
+
+file.exists(arq_sinisa)   # deve ser TRUE
+
+# POPR_RA e POPR_RE são lidas como TEXTO de propósito, com colClasses
+# No arquivo o ponto é separador de milhar ("83.807" são 83807 pessoas), mas
+# para o R o ponto é separador decimal. Se o tipo for decidido pelo R, uma
+# coluna em que nenhum município passe de 999.999 seria lida como número e
+# "83.807" viraria 83,807 - errado por mil e sem nenhum aviso
+# Neste arquivo isso não chega a acontecer só porque 14 municípios passam de
+# 1 milhão e têm dois pontos, o que força o R a ler a coluna como texto
+# Com colClasses o resultado não depende dessa sorte
+# na.strings cuida das células vazias, que são muitas neste banco
+dados_sinisa = read.csv(arq_sinisa,
+                        colClasses = c(POPR_RA = "character",
+                                       POPR_RE = "character"),
+                        na.strings = c("NA", ""))
+
+# Verificando se a leitura foi feita corretamente
+dim(dados_sinisa)     # 5570 linhas e 6 colunas (os 5570 municípios do Brasil)
+nrow(dados_sinisa)    # 5570
+ncol(dados_sinisa)    # 6
+
+# Verificando a estrutura dos dados
+str(dados_sinisa)
+names(dados_sinisa)
+# "CODMUNRES" "Município" "Estado" "Ano.de.Referência" "POPR_RA" "POPR_RE"
+head(dados_sinisa)
+
+# CODMUNRES tem 6 dígitos, igual ao SIM e ao SINASC
+table(nchar(as.character(dados_sinisa$CODMUNRES)))   # 6: 5570
+table(dados_sinisa$Ano.de.Referência)                # 2016: 5570
+
+# Os valores vêm com o ponto de milhar e ainda como texto
+head(dados_sinisa$POPR_RA)   # "4.858" "4.687" "13.875" "4.010" ...
+
+# --- Remover a pontuação de milhar e converter para formato numérico -------
+# fixed = TRUE para o ponto ser tratado como ponto, e não como "qualquer
+# caractere" da expressão regular
+dados_sinisa$POPR_RA = as.numeric(gsub(".", "", dados_sinisa$POPR_RA, fixed = TRUE))
+dados_sinisa$POPR_RE = as.numeric(gsub(".", "", dados_sinisa$POPR_RE, fixed = TRUE))
+
+# Conferindo a conversão
+str(dados_sinisa)
+head(dados_sinisa$POPR_RA)   # agora 4858 4687 13875 4010 ...
+summary(dados_sinisa$POPR_RA)
+summary(dados_sinisa$POPR_RE)
+
+# O banco tem muitos NA, como o roteiro avisa
+colSums(is.na(dados_sinisa))
+# resultado: 409 NA em POPR_RA e 3075 em POPR_RE, no Brasil inteiro
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 1 commit com a mensagem "script BDEM - SINISA - tarefa 1" e envie para o repositório Projeto_BDEM_2016
 
 
