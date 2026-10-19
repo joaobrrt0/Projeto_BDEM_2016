@@ -1878,6 +1878,19 @@ SINISA_PE$POPR_RE[1] == sum(SINISA_PE$POPR_RE[-1], na.rm = TRUE)   # TRUE
 
 
 # Tarefa 4. Exportar o banco de dados com o nome SINISA_UF.csv (Exemplo: SINISA_RJ.csv)
+# ---------------------------------------------------------------------------
+# Exportação com ";" como separador, igual aos outros quatro bancos já
+# exportados, para os cinco arquivos da ETAPA 6 ficarem no mesmo formato
+write.csv2(SINISA_PE, "SINISA_PE.csv", row.names = FALSE)
+
+# Conferindo o arquivo exportado
+file.exists("SINISA_PE.csv")
+confere = read.csv2("SINISA_PE.csv")
+dim(confere)      # 186 linhas e 5 colunas
+names(confere)
+head(confere)
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 4 commit com o comentário "dados SINISA_UF 2016 e script - SINISA - tarefas 1 a 4"  e enviar para o repositório Projeto_BDEM_2016
 
 
