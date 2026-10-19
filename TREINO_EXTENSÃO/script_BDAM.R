@@ -585,11 +585,55 @@ all.equal(confere_bd4, BANCO4_RJ)
 # Tarefa 1: Leitura do banco de dados banco 5 = SINISA.csv com o nome de dados_bd5 
 # Ler os arquivos, verificar estruturas dos dados e dar uma olhada nos dados
 
+# ---------------------------------------------------------------------------
+# UF de trabalho: RIO DE JANEIRO (RJ) - código 33
+# Definir a pasta de trabalho como sendo a pasta TREINO_EXTENSÃO do repositório local
+# setwd("C:/Users/User/Desktop/Projeto_BDEM_2016/TREINO_EXTENSÃO")
+
+pasta_trabalho <- if (dir.exists(file.path(".", "TREINO_EXTENSÃO"))) {
+  file.path(".", "TREINO_EXTENSÃO")
+} else {
+  "."
+}
+
+# Leitura do banco de dados: o arquivo tem separador "," (por isso read.csv)
+dados_bd5 = read.csv(file.path(pasta_trabalho, "banco 5 = SINISA - banco 5 = SINISA.csv"), stringsAsFactors = FALSE)
+
+# Verificando se a leitura foi feita corretamente
+dim(dados_bd5)      # esperado: 12 linhas e 3 colunas
+nrow(dados_bd5)     # 12
+ncol(dados_bd5)     # 3
+
+# Verificando a estrutura dos dados
+str(dados_bd5)
+names(dados_bd5)
+# "MUNICIPIO" "NUM_CARROS_REGISTRADOS" "NUM_MOTOS_REGISTRADAS"
+
+# Dando uma olhada nos dados
+head(dados_bd5)
+summary(dados_bd5)
+
+# Verificando se há valores ausentes
+sum(is.na(dados_bd5$NUM_CARROS_REGISTRADOS))
+sum(is.na(dados_bd5$NUM_MOTOS_REGISTRADAS))
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 1 commit com a mensagem " script - tarefa 1" e envie para o repositório Treino_Extensao
 
 
 # Tarefa 2: Manipulação dos dados
 # Observe que os números estão com ponto indicando milhar. Estes pontos devem ser extraídos para não confundir com decimal
+
+# ---------------------------------------------------------------------------
+dados_bd5$NUM_CARROS_REGISTRADOS = gsub("\\.", "", dados_bd5$NUM_CARROS_REGISTRADOS)
+dados_bd5$NUM_MOTOS_REGISTRADAS = gsub("\\.", "", dados_bd5$NUM_MOTOS_REGISTRADAS)
+
+dados_bd5$NUM_CARROS_REGISTRADOS = as.numeric(dados_bd5$NUM_CARROS_REGISTRADOS)
+dados_bd5$NUM_MOTOS_REGISTRADAS = as.numeric(dados_bd5$NUM_MOTOS_REGISTRADAS)
+
+str(dados_bd5)
+head(dados_bd5)
+# ---------------------------------------------------------------------------
 
 # Ao terminar a Tarefa 2 commit com a mensagem " script - tarefa 1 a 2" e envie para o repositório Treino_Extensao
 
@@ -602,10 +646,39 @@ all.equal(confere_bd4, BANCO4_RJ)
 # NCR: número de carros registrados
 # NMR: número de motos registradas
 
+# ---------------------------------------------------------------------------
+uf_bd5 <- data.frame(
+  ANO = 2025,
+  NIVEL = "UF",
+  CODIGO = 33,
+  NCR = sum(dados_bd5$NUM_CARROS_REGISTRADOS, na.rm = TRUE),
+  NMR = sum(dados_bd5$NUM_MOTOS_REGISTRADAS, na.rm = TRUE)
+)
+
+BANCO5_RJ <- dados_bd5[, c("MUNICIPIO", "NUM_CARROS_REGISTRADOS", "NUM_MOTOS_REGISTRADAS")]
+names(BANCO5_RJ) <- c("CODIGO", "NCR", "NMR")
+BANCO5_RJ$ANO <- 2025
+BANCO5_RJ$NIVEL <- "MUNICIPIO"
+BANCO5_RJ <- BANCO5_RJ[, c("ANO", "NIVEL", "CODIGO", "NCR", "NMR")]
+BANCO5_RJ <- rbind(uf_bd5, BANCO5_RJ)
+row.names(BANCO5_RJ) <- NULL
+
+str(BANCO5_RJ)
+head(BANCO5_RJ)
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 3 commit com a mensagem " script - tarefa 1 a 3" e envie para o repositório Treino_Extensao
 
 
 # Tarefa 4: Exportar o banco de dados BANCO5_RJ com o nome BANCO5_RJ.csv
+
+# ---------------------------------------------------------------------------
+write.csv(BANCO5_RJ, file = file.path(pasta_trabalho, "BANCO5_RJ.csv"), row.names = FALSE)
+
+file.exists(file.path(pasta_trabalho, "BANCO5_RJ.csv"))
+confere_bd5 <- read.csv(file.path(pasta_trabalho, "BANCO5_RJ.csv"), stringsAsFactors = FALSE)
+all.equal(confere_bd5, BANCO5_RJ)
+# ---------------------------------------------------------------------------
 
 # Ao terminar a Tarefa 4 commit com a mensagem "dados e script - Etapa 5" e envie para o repositório Treino_Extensao
 
