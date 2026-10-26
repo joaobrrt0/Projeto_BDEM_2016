@@ -1914,6 +1914,78 @@ head(confere)
 # Além disso dentro do merge all = TRUE garante a manutenção de qualquer município presente em um dos bancos envolvidos no merge
 
 
+# ---------------------------------------------------------------------------
+# UF de trabalho: PERNAMBUCO (PE) - código 26
+
+# --- Leitura dos 5 bancos exportados nas etapas anteriores ------------------
+# Todos foram gravados com write.csv2, então são lidos com read.csv2
+SIM_PE    = read.csv2("SIM_PE.csv")
+SINASC_PE = read.csv2("SINASC_PE.csv")
+SIDRA_PE  = read.csv2("SIDRA_PE.csv")
+ATLAS_PE  = read.csv2("ATLAS_PE.csv")
+SINISA_PE = read.csv2("SINISA_PE.csv")
+
+# Conferindo a leitura
+dim(SIM_PE)      # 187 linhas e  40 colunas
+dim(SINASC_PE)   # 187 linhas e 103 colunas
+dim(SIDRA_PE)    # 186 linhas e  13 colunas
+dim(ATLAS_PE)    # 186 linhas e   7 colunas
+dim(SINISA_PE)   # 186 linhas e   5 colunas
+
+# --- Compatibilizar o CODMUNRES --------------------------------------------
+# SIDRA e ATLAS têm 7 dígitos (o último é o dígito verificador do IBGE) e
+# SIM, SINASC e SINISA têm 6
+table(nchar(as.character(SIDRA_PE$CODMUNRES)))    # 2: 1 (a UF) e 7: 185
+table(nchar(as.character(SIM_PE$CODMUNRES)))      # 2: 1 (a UF) e 6: 186
+
+# substr e NÃO divisão inteira: a linha da UF tem CODMUNRES = 26, com 2
+# dígitos, e %/% 10 a transformaria em 2, deixando a UF órfã do merge
+SIDRA_PE$CODMUNRES = as.numeric(substr(SIDRA_PE$CODMUNRES, 1, 6))
+ATLAS_PE$CODMUNRES = as.numeric(substr(ATLAS_PE$CODMUNRES, 1, 6))
+
+# Conferindo que a UF continua 26 e os municípios ficaram com 6 dígitos
+head(SIDRA_PE$CODMUNRES, 3)    # 26 260005 260010
+table(nchar(as.character(SIDRA_PE$CODMUNRES)))   # 2: 1 e 6: 185
+
+# --- Agregação dos bancos ---------------------------------------------------
+# O merge é por ANO, NIVEL e CODMUNRES, e não só por CODMUNRES: os cinco
+# bancos têm as três colunas, e juntar só pelo código criaria ANO.x/ANO.y e
+# NIVEL.x/NIVEL.y a cada um dos quatro merges
+# all = TRUE em TODOS os merges, como o roteiro pede, para não perder nenhum
+# município que exista em apenas um dos bancos
+CHAVE = c("ANO", "NIVEL", "CODMUNRES")
+
+BDEM_PE = merge(SIM_PE,  SINASC_PE, by = CHAVE, all = TRUE)
+BDEM_PE = merge(BDEM_PE, SIDRA_PE,  by = CHAVE, all = TRUE)
+BDEM_PE = merge(BDEM_PE, ATLAS_PE,  by = CHAVE, all = TRUE)
+BDEM_PE = merge(BDEM_PE, SINISA_PE, by = CHAVE, all = TRUE)
+
+# Deixando a UF na 1a linha e os municípios ordenados por código
+BDEM_PE = BDEM_PE[order(BDEM_PE$NIVEL != "UF", BDEM_PE$CODMUNRES), ]
+row.names(BDEM_PE) = NULL
+
+# Conferindo o banco agregado
+dim(BDEM_PE)            # 187 linhas e 156 colunas (40+103+13+7+5 menos as
+                        # 3 colunas da chave, repetidas nos 4 merges)
+table(BDEM_PE$NIVEL)    # MUNICIPIO: 186   UF: 1
+head(BDEM_PE[, 1:6])
+
+# Nenhuma coluna duplicada do tipo ANO.x / NIVEL.y
+names(BDEM_PE)[grepl("\\.x$|\\.y$", names(BDEM_PE))]   # character(0)
+
+# Conferindo que não se perdeu nem se inventou município
+nrow(BDEM_PE) == length(unique(c(SIM_PE$CODMUNRES, SINASC_PE$CODMUNRES,
+                                 SIDRA_PE$CODMUNRES, ATLAS_PE$CODMUNRES,
+                                 SINISA_PE$CODMUNRES)))      # TRUE
+
+# OBSERVAÇÃO: o código 260000 ("município ignorado") existe só no SIM e no
+# SINASC, então a linha dele fica com NA nas colunas vindas do SIDRA, do ATLAS
+# e do SINISA. É o comportamento esperado do all = TRUE: são 301 óbitos e 6
+# nascimentos reais, que já estão somados no total da UF, e descartá-los com
+# all = FALSE tiraria essas ocorrências do banco municipal
+colSums(is.na(BDEM_PE[BDEM_PE$CODMUNRES == 260000, ]))[c("POPRE_T", "IDHM_CA", "POPR_RA")]
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 1 commit com a mensagem "script BDEM - BDEM - tarefa 1" e envie para o repositório Projeto_BDEM_2016
 
 
