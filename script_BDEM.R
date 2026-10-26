@@ -1734,20 +1734,167 @@ head(confere)
 # Verificar se a leitura de todos os bancos foi feita corretamente e a estrutura dos dados
 # Remover a pontuação de milhar e converter para formato numérico
 
+# ---------------------------------------------------------------------------
+# UF de trabalho: PERNAMBUCO (PE) - código 26
+# O arquivo é separado por vírgula, por isso read.csv
+arq_sinisa = "agua e esgoto - município - 2016.csv"
+
+file.exists(arq_sinisa)   # deve ser TRUE
+
+# POPR_RA e POPR_RE são lidas como TEXTO de propósito, com colClasses
+# No arquivo o ponto é separador de milhar ("83.807" são 83807 pessoas), mas
+# para o R o ponto é separador decimal. Se o tipo for decidido pelo R, uma
+# coluna em que nenhum município passe de 999.999 seria lida como número e
+# "83.807" viraria 83,807 - errado por mil e sem nenhum aviso
+# Neste arquivo isso não chega a acontecer só porque alguns municípios passam
+# de 1 milhão e têm dois pontos, o que força o R a ler a coluna como texto
+# (14 valores assim em POPR_RA e 11 em POPR_RE)
+# Com colClasses o resultado não depende dessa sorte
+# na.strings cuida das células vazias, que são muitas neste banco
+dados_sinisa = read.csv(arq_sinisa,
+                        colClasses = c(POPR_RA = "character",
+                                       POPR_RE = "character"),
+                        na.strings = c("NA", ""))
+
+# Verificando se a leitura foi feita corretamente
+dim(dados_sinisa)     # 5570 linhas e 6 colunas (os 5570 municípios do Brasil)
+nrow(dados_sinisa)    # 5570
+ncol(dados_sinisa)    # 6
+
+# Verificando a estrutura dos dados
+str(dados_sinisa)
+names(dados_sinisa)
+# "CODMUNRES" "Município" "Estado" "Ano.de.Referência" "POPR_RA" "POPR_RE"
+head(dados_sinisa)
+
+# CODMUNRES tem 6 dígitos, igual ao SIM e ao SINASC
+table(nchar(as.character(dados_sinisa$CODMUNRES)))   # 6: 5570
+table(dados_sinisa$Ano.de.Referência)                # 2016: 5570
+
+# Os valores vêm com o ponto de milhar e ainda como texto
+head(dados_sinisa$POPR_RA)   # "4.858" "4.687" "13.875" "4.010" ...
+
+# --- Remover a pontuação de milhar e converter para formato numérico -------
+# fixed = TRUE para o ponto ser tratado como ponto, e não como "qualquer
+# caractere" da expressão regular
+dados_sinisa$POPR_RA = as.numeric(gsub(".", "", dados_sinisa$POPR_RA, fixed = TRUE))
+dados_sinisa$POPR_RE = as.numeric(gsub(".", "", dados_sinisa$POPR_RE, fixed = TRUE))
+
+# Conferindo a conversão
+str(dados_sinisa)
+head(dados_sinisa$POPR_RA)   # agora 4858 4687 13875 4010 ...
+summary(dados_sinisa$POPR_RA)
+summary(dados_sinisa$POPR_RE)
+
+# O banco tem muitos NA, como o roteiro avisa
+colSums(is.na(dados_sinisa))
+# resultado: 409 NA em POPR_RA e 3075 em POPR_RE, no Brasil inteiro
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 1 commit com a mensagem "script BDEM - SINISA - tarefa 1" e envie para o repositório Projeto_BDEM_2016
 
 
 # Tarefa 2. Reduzir dados_sinisa apenas para o estado que o aluno irá trabalhar (utilizar os dois primeiros dígitos de CODMUNRES), nomeando este novo banco de dados como dados_sinisa_1
+
+# ---------------------------------------------------------------------------
+# A UF de trabalho é PERNAMBUCO, cujo código é 26
+# CODMUNRES tem 6 dígitos e os dois primeiros identificam a UF
+# O which() é usado para que eventuais NA em CODMUNRES não gerem linhas vazias
+dados_sinisa_1 = dados_sinisa[which(substr(dados_sinisa$CODMUNRES, 1, 2) == "26"), ]
+
+# Conferindo o tamanho do banco
+nrow(dados_sinisa_1)   # 185 municípios de PE
+
+# Conferindo que sobrou apenas PE
+table(dados_sinisa_1$Estado)                          # PE: 185
+table(substr(dados_sinisa_1$CODMUNRES, 1, 2))         # 26: 185
+
+str(dados_sinisa_1)
+
+# Quantos municípios de PE informaram cada variável
+colSums(is.na(dados_sinisa_1))
+# resultado: 6 NA em POPR_RA (179 informaram) e 123 em POPR_RE (62 informaram)
+# ---------------------------------------------------------------------------
 
 # Ao terminar a Tarefa 2 commit com a mensagem "script BDEM - SINISA - tarefas 1 a 2" e envie para o repositório Projeto_BDEM_2016
 
 
 # Tarefa 3. Criar um banco de dados, de nome SINISA_UF.csv (Exemplo: SINISA_RJ.csv), contendo as variáveis listadas no arquivo “Variáveis - Projeto - Tarefa 3 - SINISA.pdf”
 
+# ---------------------------------------------------------------------------
+# --- Linha da UF (CODMUNRES = 26) ------------------------------------------
+# A UF é a soma dos municípios; na.rm = TRUE porque os municípios que não
+# informaram entram como NA e não devem zerar o total do estado
+linha_uf = data.frame(
+  ANO       = 2016,
+  NIVEL     = "UF",
+  CODMUNRES = 26,
+  POPR_RA   = sum(dados_sinisa_1$POPR_RA, na.rm = TRUE),
+  POPR_RE   = sum(dados_sinisa_1$POPR_RE, na.rm = TRUE)
+)
+
+# --- Linhas dos municípios --------------------------------------------------
+linhas_municipio = data.frame(
+  ANO       = 2016,
+  NIVEL     = "MUNICIPIO",
+  CODMUNRES = dados_sinisa_1$CODMUNRES,
+  POPR_RA   = dados_sinisa_1$POPR_RA,
+  POPR_RE   = dados_sinisa_1$POPR_RE
+)
+
+# ordenando os municípios por código
+linhas_municipio = linhas_municipio[order(linhas_municipio$CODMUNRES), ]
+
+# --- Banco final, com a UF na 1a linha --------------------------------------
+SINISA_PE = rbind(linha_uf, linhas_municipio)
+row.names(SINISA_PE) = NULL
+
+# Conferindo o banco criado
+dim(SINISA_PE)     # 186 linhas (1 UF + 185 municípios) e 5 colunas
+names(SINISA_PE)   # a ordem deve ser a mesma do arquivo da Tarefa 3
+str(SINISA_PE)
+head(SINISA_PE)
+table(SINISA_PE$NIVEL)   # MUNICIPIO: 185   UF: 1
+
+# Conferindo se a linha da UF é a soma dos municípios
+SINISA_PE$POPR_RA[1] == sum(SINISA_PE$POPR_RA[-1], na.rm = TRUE)   # TRUE
+SINISA_PE$POPR_RE[1] == sum(SINISA_PE$POPR_RE[-1], na.rm = TRUE)   # TRUE
+
+# Resultados obtidos para a linha da UF (26 - PE):
+# POPR_RA 7214286   POPR_RE 2509952
+
+# OBSERVAÇÕES:
+# 1. O total da UF é a soma de quem informou, não a cobertura real do estado.
+#    Em PE só 179 dos 185 municípios informaram abastecimento de água e apenas
+#    62 informaram rede de esgoto, então POPR_RE em especial está subestimado.
+#    Os NA foram mantidos nas linhas dos municípios justamente para não
+#    confundir "não informou" com "não tem atendimento".
+#    Em números: POPR_RA são 179 de 185 municípios e 76,7% da população
+#    estimada de PE em 2016 (9410336, vinda do SIDRA_PE); POPR_RE são 62 de
+#    185 e 26,7%. O POPR_RE da UF é um piso, não a cobertura do estado.
+# 2. Diferente do SIDRA e do ATLAS, aqui o CODMUNRES tem 6 dígitos, igual ao
+#    SIM e ao SINASC, como o roteiro avisa na ETAPA 6.
+# 3. Este banco não tem o código 260000 ("município ignorado") que aparece no
+#    SIM e no SINASC: são 185 municípios, não 186.
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 3 commit com a mensagem "script BDEM - SINISA - tarefas 1 a 3" e envie para o repositório Projeto_BDEM_2016
 
 
 # Tarefa 4. Exportar o banco de dados com o nome SINISA_UF.csv (Exemplo: SINISA_RJ.csv)
+# ---------------------------------------------------------------------------
+# Exportação com ";" como separador, igual aos outros quatro bancos já
+# exportados, para os cinco arquivos da ETAPA 6 ficarem no mesmo formato
+write.csv2(SINISA_PE, "SINISA_PE.csv", row.names = FALSE)
+
+# Conferindo o arquivo exportado
+file.exists("SINISA_PE.csv")
+confere = read.csv2("SINISA_PE.csv")
+dim(confere)      # 186 linhas e 5 colunas
+names(confere)
+head(confere)
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 4 commit com o comentário "dados SINISA_UF 2016 e script - SINISA - tarefas 1 a 4"  e enviar para o repositório Projeto_BDEM_2016
 
 
