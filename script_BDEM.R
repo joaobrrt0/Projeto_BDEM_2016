@@ -2002,6 +2002,74 @@ colSums(is.na(BDEM_PE[BDEM_PE$CODMUNRES == 260000, ]))[c("POPRE_T", "IDHM_CA", "
 
 # Conferir o banco BDEM_UF após inserção dos indicadores
 
+# ---------------------------------------------------------------------------
+# Numeradores e denominadores de cada indicador:
+#   TFG   = nascidos vivos / mulheres de 15 a 49 anos            x 1.000
+#   TMG   = óbitos totais / população residente                  x 1.000
+#   RMM   = óbitos maternos / nascidos vivos                     x 100.000
+#   TMM   = óbitos maternos / mulheres de 15 a 49 anos           x 100.000
+#   TMM_P = óbitos maternos até 42 dias / mulheres de 15 a 49    x 100.000
+#   TMN   = óbitos de 0 a 27 dias / nascidos vivos               x 1.000
+#   TMN_P = óbitos de 0 a 6 dias / nascidos vivos                x 1.000
+#   TMN_T = óbitos de 7 a 27 dias / nascidos vivos               x 1.000
+#   TMI   = óbitos de menores de 1 ano / nascidos vivos          x 1.000
+# RMM é razão (por nascidos vivos) e TMM é taxa (por mulheres em idade
+# fértil): são indicadores diferentes, com denominadores diferentes
+# Os óbitos de menores de 1 ano são os neonatais mais os pós-neonatais,
+# ou seja, TO_NT + TO_PNT
+
+BDEM_PE$TFG   = round(BDEM_PE$TN      / BDEM_PE$POPRC_F_15_49 * 1000,   2)
+BDEM_PE$TMG   = round(BDEM_PE$TO      / BDEM_PE$POPRE_T       * 1000,   2)
+BDEM_PE$RMM   = round(BDEM_PE$TO_MT   / BDEM_PE$TN            * 100000, 2)
+BDEM_PE$TMM   = round(BDEM_PE$TO_MT   / BDEM_PE$POPRC_F_15_49 * 100000, 2)
+BDEM_PE$TMM_P = round(BDEM_PE$TO_MT_P / BDEM_PE$POPRC_F_15_49 * 100000, 2)
+BDEM_PE$TMN   = round(BDEM_PE$TO_NT   / BDEM_PE$TN            * 1000,   2)
+BDEM_PE$TMN_P = round(BDEM_PE$TO_NT_P / BDEM_PE$TN            * 1000,   2)
+BDEM_PE$TMN_T = round(BDEM_PE$TO_NT_T / BDEM_PE$TN            * 1000,   2)
+BDEM_PE$TMI   = round((BDEM_PE$TO_NT + BDEM_PE$TO_PNT) / BDEM_PE$TN * 1000, 2)
+
+# --- Conferindo o banco após a inserção dos indicadores --------------------
+dim(BDEM_PE)      # 187 linhas e 165 colunas (156 + os 9 indicadores)
+INDICADORES = c("TFG", "TMG", "RMM", "TMM", "TMM_P",
+                "TMN", "TMN_P", "TMN_T", "TMI")
+str(BDEM_PE[, INDICADORES])
+
+# Os indicadores da linha da UF (26 - PE)
+BDEM_PE[1, c("CODMUNRES", INDICADORES)]
+# resultado: TFG 52.26   TMG 7.11    RMM 92.56   TMM 4.84   TMM_P 3.96
+#            TMN 9.78    TMN_P 7.40  TMN_T 2.39  TMI 13.93
+
+summary(BDEM_PE[, INDICADORES])
+
+# Conferências de coerência interna
+# a identidade vale nas CONTAGENS, não nas taxas arredondadas
+BDEM_PE$TO_NT[1] == BDEM_PE$TO_NT_P[1] + BDEM_PE$TO_NT_T[1]       # TRUE
+all(BDEM_PE$TMI >= BDEM_PE$TMN, na.rm = TRUE)                     # TRUE
+all(BDEM_PE$TMM >= BDEM_PE$TMM_P, na.rm = TRUE)                   # TRUE
+# TMN_P + TMN_T dá 9.79 e TMN dá 9.78: cada taxa é arredondada por si, então
+# a soma das partes arredondadas não precisa bater com o total arredondado
+
+# Quantos municípios ficaram sem cada indicador
+colSums(is.na(BDEM_PE[, INDICADORES]))
+# resultado: 1 NA em TFG, TMG, TMM e TMM_P - é a linha 260000, que não tem
+# denominador populacional porque não existe no SIDRA. Os indicadores cujo
+# denominador são os nascidos vivos (RMM, TMN, TMN_P, TMN_T, TMI) ficam
+# preenchidos nas 187 linhas
+
+# OBSERVAÇÕES:
+# 1. TMG usa POPRE_T, que é a população estimada de 2016, o ano de referência.
+#    Já TFG, TMM e TMM_P usam POPRC_F_15_49, que é do Censo de 2010, porque
+#    não existe estimativa de 2016 por sexo e faixa etária nos dados do SIDRA
+#    fornecidos. Como a população feminina de 15 a 49 cresceu entre 2010 e
+#    2016, esses três indicadores ficam um pouco superestimados.
+# 2. TO_MT conta o óbito materno pelo MOMENTO da morte (TPMORTEOCO), não pela
+#    causa básica, como está explicado na OBSERVAÇÃO 4 da Tarefa 7 da ETAPA 1.
+#    Por isso RMM e TMM também herdam essa superestimação: pelo critério de
+#    causa do capítulo O do CID-10 a RMM da UF seria 58.13 no lugar de 92.56.
+# 3. Os indicadores municipais devem ser lidos com cuidado: em municípios
+#    pequenos, um único óbito materno move a RMM em centenas de pontos.
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 2 commit com a mensagem "script BDEM - BDEM - tarefas 1 a 2" e envie para o repositório Projeto_BDEM_2016
 
 
