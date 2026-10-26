@@ -2074,5 +2074,18 @@ colSums(is.na(BDEM_PE[, INDICADORES]))
 
 
 # Tarefa 3: Exportar o banco de dados com o nome BDEM_UF.csv (Exemplo: BDEM_RJ.csv)
+# ---------------------------------------------------------------------------
+# Exportação com ";" como separador, igual aos cinco bancos que deram origem
+# a ele
+write.csv2(BDEM_PE, "BDEM_PE.csv", row.names = FALSE)
+
+# Conferindo o arquivo exportado
+file.exists("BDEM_PE.csv")
+confere = read.csv2("BDEM_PE.csv")
+dim(confere)      # 187 linhas e 165 colunas
+names(confere)[1:6]
+confere[1, c("CODMUNRES", "TFG", "TMG", "RMM", "TMI")]
+# ---------------------------------------------------------------------------
+
 # Ao terminar a Tarefa 3 commit com o comentário "dados BDEM_UF 2016 e script - BDEM - tarefas 1 a 3"  e enviar para o repositório Projeto_BDEM_2016
  
