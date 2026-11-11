@@ -633,7 +633,8 @@ dados_sinasc_2$RACACORMAE[dados_sinasc_2$RACACORMAE %in% c(9)] = NA
 dados_sinasc_2$TPAPRESENT[dados_sinasc_2$TPAPRESENT %in% c(9)] = NA
 dados_sinasc_2$KOTELCHUCK[dados_sinasc_2$KOTELCHUCK %in% c(9)] = NA
 
-# SEXO: pelo dicionário, I, 0 e 9 são "ignorado"
+# SEXO: pelo dicionário do SINASC, o "ignorado" é o 0 (ou I)
+# o 9 não está no dicionário e não aparece em PE; fica só por precaução
 dados_sinasc_2$SEXO[dados_sinasc_2$SEXO %in% c(0, 9)] = NA
 
 # TPROBSON: 11 significa "Não classificado por falta de informação"
@@ -1183,8 +1184,8 @@ SINASC_PE$TN[1] == sum(SINASC_PE$TN[-1])    # deve ser TRUE
 # 2. O arquivo da Tarefa 9 fala em "22 variáveis selecionadas do SINASC" para
 #    o TNRCR, mas a Tarefa 2 do roteiro seleciona 21 colunas. Aqui foram usadas
 #    as 21 variáveis de dados_sinasc_1.
-# 3. TGPRI usa PARIDADE igual a Nulípara: no SINASC, nulípara é a mãe que ainda
-#    não tinha tido parto, ou seja, é justamente a primípara deste nascimento.
+# 3. TGPRI usa PARIDADE igual a Nulípara: pelo dicionário do SINASC, nulípara é
+#    a mãe na primeira gravidez, ou seja, é a primípara deste nascimento.
 # 4. PE tem 185 municípios, mas aparecem 186 códigos: o código 260000
 #    ("município ignorado") foi mantido para que a soma dos municípios continue
 #    batendo com o total da UF.

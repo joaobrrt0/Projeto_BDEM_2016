@@ -1,2 +1,2 @@
-Projeto de extensão da disciplina de Prática 1
+Projeto de extensão da disciplina de Prática Estatística 1
 
